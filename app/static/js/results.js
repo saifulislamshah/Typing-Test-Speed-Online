@@ -30,10 +30,9 @@ export class Results {
       this.dlg.querySelectorAll('.lw[hidden]').forEach((li) => (li.hidden = false));
       e.target.hidden = true;
     });
-    $('#save-words').addEventListener('click', () => this.save());
     $('#practice-again').addEventListener('click', () => {
       const picked = this.checked();
-      if (!picked.length) return;
+      if (!picked.length) { $('#save-status').textContent = 'Tick at least one word to practice.'; return; }
       this.dlg.close('practice');
       hooks.onPractice(picked);
     });
@@ -83,10 +82,8 @@ export class Results {
     $('#learned-list').innerHTML = this.learned.map((it, i) => learnedHtml(it, i, r.mode)).join('');
     $('#show-all').hidden = n <= SHOW_FIRST;
     $('#show-all').textContent = `Show all ${n} words`;
-    $('#save-words').hidden = $('#practice-again').hidden = !n;
-    $('#save-words').textContent = 'Save to My Words';
-    $('#save-words').classList.remove('is-done');
-    $('#save-status').textContent = '';
+    $('#practice-again').hidden = !n;
+    this.save();
 
     this.renderAnalysis(a);
 
@@ -130,14 +127,14 @@ export class Results {
     return this.learned.filter((it) => ids.has(it.rec.id));
   }
 
+  // Every learned word goes to My Words automatically.
   save() {
-    const picked = this.checked();
-    if (!picked.length) { $('#save-status').textContent = 'Select at least one word to save.'; return; }
-    const ok = saveWords(picked.map((it) => ({ rec: it.rec, typed: it.sentence })));
+    const n = this.learned.length;
+    if (!n) { $('#save-status').textContent = ''; return; }
+    const ok = saveWords(this.learned.map((it) => ({ rec: it.rec, typed: it.sentence })));
     $('#save-status').innerHTML = ok
-      ? `Saved ${picked.length} word${picked.length === 1 ? '' : 's'}. <a href="/my-words">Open My Words</a>`
-      : 'Could not save: browser storage is unavailable.';
-    if (ok) { $('#save-words').textContent = 'Saved ✓'; $('#save-words').classList.add('is-done'); }
+      ? `✓ ${n} word${n === 1 ? '' : 's'} added to <a href="/my-words">My Words</a>`
+      : 'Could not save your words: browser storage is full or turned off.';
     this.hooks.onSaved?.();
   }
 }
@@ -147,7 +144,7 @@ function learnedHtml(it, i, mode) {
   const sentence = mode === 'speed' ? rec.senses[0].examples[0] : it.sentence;
   const id = `lw-more-${i}`;
   return `<li class="lw"${i >= SHOW_FIRST ? ' hidden' : ''}>
-<div class="lw-head"><label><input type="checkbox" value="${esc(rec.id)}" checked><span class="sr-only">Save ${esc(rec.word)}</span></label>
+<div class="lw-head"><label><input type="checkbox" value="${esc(rec.id)}" checked><span class="sr-only">Practice ${esc(rec.word)} again</span></label>
 <span class="lw-word">${esc(rec.word)}</span>${rec.ipa ? `<span class="ipa muted">${esc(rec.ipa)}</span>` : ''}${speakBtn(rec.word)}</div>
 <p class="lw-meaning">${meaningSentence(rec, rec.senses[senseIndex(rec, sentence)])}</p>
 ${bnHtml(rec, rec.senses[senseIndex(rec, sentence)].pos)}

@@ -92,8 +92,8 @@ def test_full_flow_desktop(browser, server):
     assert word in page.text_content("#learned-list")
     page.wait_for_function("() => document.querySelectorAll('#analysis-grid div').length === 4")
 
-    page.click("#save-words")
-    assert "Saved" in page.text_content("#save-status")
+    # Learned words are saved to My Words automatically.
+    assert "added to My Words" in page.text_content("#save-status")
 
     page.click("#try-again")
     assert not page.is_visible("#result-dialog")
@@ -236,6 +236,52 @@ def test_bangla_tip_above_current_word_and_toggle(browser, server, mode):
     page.wait_for_timeout(250)
     assert not page.is_checked("#bangla-toggle"), "the choice is remembered"
     assert page.is_hidden("#bn-tip")
+    assert not errors, errors
+
+
+def test_my_words_backup_round_trip_and_chart(browser, server, tmp_path):
+    page, errors = new_page(browser, DESKTOP)
+    page.goto(server + "/my-words")
+    assert page.is_visible("#mw-empty") and page.is_visible("#import-btn"), "import works on a new device"
+    # One learned word and one test, as a finished test would leave them.
+    page.evaluate("""async () => {
+        const rec = (await (await fetch('/api/vocab?level=easy&count=1&seed=3')).json()).words[0];
+        const now = Date.now();
+        localStorage.setItem('tt-words', JSON.stringify({ [rec.id]: { r: rec, typed: '', savedAt: now, lastAt: now, seen: 2, known: false, practiced: 0 } }));
+        localStorage.setItem('tt-history', JSON.stringify([{ t: now, wpm: 31, acc: 96, cpm: 155, learned: 1, dur: 60 }, { t: now - 1000, wpm: 25, acc: 92, cpm: 125, learned: 3, dur: 60 }]));
+        localStorage.setItem('tt-best', '31');
+    }""")
+    page.reload()
+    word = page.text_content("#mw-list .wc-word")
+    assert "typed 2 times" in page.text_content("#mw-list .mw-meta")
+    # The progress chart is styled (it was an unstyled black block).
+    assert page.evaluate("getComputedStyle(document.querySelector('#history-chart .line')).fill") == "none"
+
+    with page.expect_download() as dl:
+        page.click("#export-btn")
+    backup = tmp_path / "backup.json"
+    dl.value.save_as(backup)
+    data = json.loads(backup.read_text(encoding="utf-8"))
+    assert data["app"] == "typingtestspeedonline" and word in data["words"] and len(data["history"]) == 2
+    assert "Backup saved: 1 word" in page.text_content("#backup-status")
+
+    # A new browser: import restores everything; importing twice doesn't duplicate.
+    page.evaluate("localStorage.clear()")
+    page.reload()
+    assert page.is_visible("#mw-empty")
+    page.set_input_files("#import-file", str(backup))
+    page.wait_for_function("document.querySelector('#backup-status').textContent.includes('imported')")
+    assert "1 new word" in page.text_content("#backup-status")
+    assert word in page.text_content("#mw-list") and page.text_content("#pb-wpm") == "31"
+    page.set_input_files("#import-file", str(backup))
+    page.wait_for_function("document.querySelector('#backup-status').textContent.includes('0 new words')")
+    assert page.locator("#mw-list .mw-card").count() == 1 and page.text_content("#tests-count") == "2"
+
+    bad = tmp_path / "bad.json"
+    bad.write_text('{"hello": 1}')
+    page.set_input_files("#import-file", str(bad))
+    page.wait_for_function("document.querySelector('#backup-status').textContent.includes('not a backup')")
+    assert page.locator("#mw-list .mw-card").count() == 1
     assert not errors, errors
 
 

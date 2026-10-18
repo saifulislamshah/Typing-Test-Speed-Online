@@ -66,6 +66,9 @@ decision and the reason.
 | Closing the result dialog in any way starts a fresh test and returns focus to the typing input. "Change settings" focuses the duration chips instead. Focus starts on **Try again** when the dialog opens. | The brief's "focus returns to Try again" is read as Try again being the dialog's initial and primary focus. After closing, the input is the natural place to continue. |
 | "Need practice" (for the Zeigarnik line) = saved, not marked known, and not yet typed in a practice run. | It's a simple and honest count. |
 | My Words has **Remove** as well as **Mark as known**. | People will want to undo a save. |
+| **Every learned word is saved to My Words automatically** (owner's request); the results dialog no longer has a Save button, and its checkboxes now choose which words to practice again. Each word keeps when it was learned and how many times it was typed. | People expected to find every word they learned. The whole library (~5,100 words) fits in the ~5 MB localStorage quota, so there is nothing to cap. |
+| **Export / Import backup** on My Words: one JSON file with words, history, best and settings. Import merges (newer data wins per word, history de-duplicated) and validates every record. | Browser storage is per device and can be cleared; a file moves words between devices without a server or an account. |
+| **Vercel Web Analytics**, only when deployed on Vercel (`VERCEL=1`; `ANALYTICS=0` turns it off). | Anonymous visitor counts with no cookies (no consent banner) and no server of our own. The script is served from our own domain, so the strict CSP is unchanged. |
 | The share URL is the site root. Facebook and LinkedIn receive only the URL, because their share intents ignore text. X and the native share sheet get the full text. | That is how those platforms work. |
 
 ## Platform

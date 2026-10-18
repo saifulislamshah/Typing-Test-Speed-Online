@@ -22,10 +22,14 @@ FAQ = [
      "Easy words are common, Medium words are less common, and Hard words are rarer but still useful."),
     ("Is my data stored?",
      "Only in your own browser. There is no account and no sign-up. Your personal best, recent results "
-     "and saved words are kept in this browser's local storage. Clearing site data removes them."),
-    ("Can I practice only my saved words?",
-     "Yes. Save words from the results screen, then open My Words and choose Practice my words. "
-     "You will type new example sentences for each saved word."),
+     "and learned words are kept in this browser's local storage. Clearing site data removes them, so use "
+     "Export backup on My Words to keep a copy."),
+    ("Can I use my words on another device?",
+     "Yes. On My Words, choose Export backup to save a small file, then open the site on the other device "
+     "or browser and choose Import backup. Words from both are merged, so nothing is lost."),
+    ("Can I practice only my own words?",
+     "Yes. Every word you learn in a test is added to My Words automatically. Open My Words and choose "
+     "Practice my words. You will type new example sentences for each word."),
     ("Does it work on phones and tablets?",
      "Yes. Tap the text to open your keyboard and start typing. The timer starts on your first key."),
     ("How do I restart a test?",

@@ -357,6 +357,14 @@ mark.hw { background: none; color: inherit; font-weight: 700; text-decoration: u
 .history th, .history td { text-align: left; padding: var(--s1) var(--s2) var(--s1) 0; border-bottom: 1px solid var(--border); white-space: nowrap; }
 .history th { font-size: 0.8125rem; color: var(--muted); font-weight: 650; }
 .mw-h { margin-top: var(--s4); }
+.backup { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1) var(--s3); margin: var(--s3) 0; padding: var(--s2) var(--s3); background: var(--surface); border-radius: var(--radius); }
+.backup-text { flex: 1 1 360px; margin: 0; color: var(--muted); font-size: 0.9375rem; }
+.backup-text strong { color: var(--text); }
+.backup-actions { display: flex; flex-wrap: wrap; gap: var(--s1); }
+.backup-status { flex-basis: 100%; margin: 0; color: var(--ok); font-weight: 600; font-size: 0.9375rem; }
+.backup-status:empty { display: none; }
+.mw-meta { margin: var(--s-half) 0 0; color: var(--muted); font: 400 0.8125rem var(--font-mono); }
+.mw-more { display: flex; margin: var(--s3) auto 0; }
 .mw-toolbar { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: flex-end; margin: var(--s3) 0; }
 .field { display: grid; gap: var(--s-half); }
 .field.grow { flex: 1 1 240px; }

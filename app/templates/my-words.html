@@ -8,18 +8,27 @@
 {{HEADER}}
 <main id="main" class="wrap page">
   <h1>My Words</h1>
-  <p class="lede" id="mw-summary">Words you save after a test appear here, with every meaning and example.</p>
-  <p class="note">Your words are saved in this browser - clearing site data will remove them.</p>
+  <p class="lede" id="mw-summary">Every word you learn in a test is added here automatically, with its meanings and examples.</p>
+
+  <div class="backup" aria-labelledby="backup-title">
+    <p class="backup-text"><strong id="backup-title">Saved in this browser only.</strong> Clearing site data removes it. Keep a backup file, or use one to move your words to another device or browser.</p>
+    <div class="backup-actions">
+      <button type="button" class="btn btn-secondary btn-sm" id="export-btn">Export backup</button>
+      <button type="button" class="btn btn-ghost btn-sm" id="import-btn">Import backup</button>
+      <input type="file" id="import-file" accept=".json,application/json" hidden>
+    </div>
+    <p class="backup-status" id="backup-status" role="status"></p>
+  </div>
 
   <section class="progress" id="progress" aria-labelledby="progress-title" hidden>
     <h2 id="progress-title">Your progress</h2>
     <div class="progress-grid">
       <div class="progress-tile"><span class="stat-num" id="pb-wpm">0</span><span class="stat-label">personal best WPM</span></div>
-      <div class="progress-tile"><span class="stat-num" id="saved-count">0</span><span class="stat-label">saved words</span></div>
+      <div class="progress-tile"><span class="stat-num" id="saved-count">0</span><span class="stat-label">words learned</span></div>
       <div class="progress-tile"><span class="stat-num" id="tests-count">0</span><span class="stat-label">tests taken</span></div>
     </div>
     <h3 class="small-h">Last 10 tests</h3>
-    <div class="history-chart" id="history-chart"></div>
+    <div class="chart history-chart" id="history-chart"></div>
     <div class="table-wrap">
       <table class="history">
         <thead><tr><th scope="col">Date</th><th scope="col">WPM</th><th scope="col">Accuracy</th><th scope="col">Words learned</th><th scope="col">Length</th></tr></thead>
@@ -28,7 +37,7 @@
     </div>
   </section>
 
-  <h2 class="mw-h" id="mw-h">Saved words</h2>
+  <h2 class="mw-h" id="mw-h">Your words</h2>
 
   <div class="mw-toolbar" id="mw-toolbar" hidden>
     <div class="field grow">
@@ -56,11 +65,12 @@
   </div>
 
   <div class="empty-state" id="mw-empty" hidden>
-    <p>Words you learn during tests will appear here. Start a 1-minute test.</p>
+    <p>Words you learn during tests appear here automatically. Start a 1-minute test.</p>
     <a class="btn btn-primary btn-lg" href="/">Start a 1-minute test</a>
   </div>
   <p class="mw-count" id="mw-count" role="status"></p>
   <ul class="mw-list" id="mw-list"></ul>
+  <button type="button" class="btn btn-secondary mw-more" id="mw-more" hidden>Show more words</button>
 </main>
 {{FOOTER}}
 </body>

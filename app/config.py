@@ -10,6 +10,10 @@ APP_SHORT_NAME = "TypingTest"
 SITE_URL = os.environ.get("SITE_URL", "https://typingtestspeedonline.com").rstrip("/")
 # PLACEHOLDER: replace with a real, monitored address before launch.
 CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "hello@typingtestspeedonline.com")
+# Vercel Web Analytics: anonymous visitor counts, no cookies. Vercel sets VERCEL=1, and the
+# script is served by Vercel from this site's own domain (/_vercel/insights/script.js), so
+# the strict CSP ('self') already allows it. Set ANALYTICS=0 to turn it off.
+ANALYTICS = os.environ.get("ANALYTICS", "1" if os.environ.get("VERCEL") == "1" else "0") == "1"
 
 LEVELS = ("easy", "medium", "hard")
 DEFAULT_LEVEL = "medium"

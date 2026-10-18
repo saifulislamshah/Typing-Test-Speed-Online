@@ -129,6 +129,19 @@ def test_pages_render_with_metadata():
         assert page.status_code == 200 and page.text.count("<h1") == 1 and "{{" not in page.text
 
 
+def test_analytics_script_only_on_vercel():
+    import subprocess
+    import sys
+    assert "/_vercel/insights" not in client.get("/").text
+    code = "from app.main import RENDERED; print('/_vercel/insights/script.js' in RENDERED['/'])"
+    root = Path(__file__).resolve().parent.parent
+    import os
+    for env, expected in (({"VERCEL": "1"}, "True"), ({"VERCEL": "1", "ANALYTICS": "0"}, "False")):
+        out = subprocess.run([sys.executable, "-c", code], cwd=root, capture_output=True, text=True,
+                             env={**os.environ, **env}, check=True).stdout.strip()
+        assert out == expected, env
+
+
 def test_security_headers_and_404():
     r = client.get("/")
     assert "script-src 'self' 'sha256-" in r.headers["content-security-policy"]

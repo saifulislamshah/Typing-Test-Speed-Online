@@ -137,6 +137,7 @@ def render(name: str, *, title: str, description: str, path: str, current: str =
         "HEADER": header,
         "FOOTER": PARTIALS["footer"],
         "THEME_SCRIPT": THEME_SCRIPT,
+        "ANALYTICS_SCRIPT": '\n<script defer src="/_vercel/insights/script.js"></script>' if config.ANALYTICS else "",
         "TITLE": html.escape(title),
         "DESCRIPTION": html.escape(description),
         "CANONICAL": config.SITE_URL + path,
