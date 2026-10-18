@@ -20,6 +20,19 @@ decision and the reason.
 | `wordfreq.top_n_list('en', 30000)` bottoms out near **zipf 2.97**, so Hard is effectively 3.0–3.5. | We followed the spec's 30k list. Raise `TOP_N` in `build_vocab.py` for rarer Hard words. |
 | The build has a shortfall policy (a quotation tier, then lowering the Easy/Medium boundary). It is **not triggered** by the current data: Easy is 1,258, Medium 2,406, Hard 1,460. | The safety net stays in place for future dumps. Any boundary actually used is written to `meta.json`. |
 | Words are ids. Each word appears in exactly one level. | Simple, unique and readable ids. |
+| **Bangla meanings come from Google Translate's dictionary mode** (`dt=bd`), fetched once at build time by `scripts/build_bangla.py`. | It returns ranked meanings grouped by part of speech, which match our senses' `pos`, so a card shows the Bangla for the sense being typed. Wiktionary's own Bengali translations covered only 5 of 5,124 words; the offline `shobdo` package is a Bangla→Bangla dictionary whose reverse lookup returned unrelated words; plain translation of a single word often picked the wrong part of speech ("burdened" → "বোঝা"). The endpoint is unofficial, which is acceptable for a one-off build, but not for runtime calls. |
+| The plain translation is used **only when Google has no dictionary entry at all**; meanings with Latin letters or over 28 characters (explanations) are dropped, and two legacy spellings are fixed (ত্তয় → ওয়, ত্স → ৎস). | A missing Bangla line is better than a wrong one. |
+
+## Layout and design
+
+| Decision | Why |
+|---|---|
+| **The home page is only the test**, sized to one screen (no scroll at 1280×720 and up, or at 390×844): header, config bar, live stats, three lines of text, word card, footer. How it works, modes, shortcuts and the FAQ moved to `/about` (with the FAQPage JSON-LD); progress history moved to `/my-words`. | The owner asked for a full-screen typing hero like monkeytype.com. The page keeps a visually hidden `<h1>` and the WebApplication JSON-LD for search. |
+| **Dark theme by default**, light theme from the toggle. Our own palette (charcoal + teal), not monkeytype's. Untyped text keeps at least 4.5:1 contrast in both themes. | The look of a typing app, without copying another product's colors, and still readable. |
+| Typing text uses the **system monospace font** (Cascadia Mono, SF Mono, Menlo, Consolas…), with no download. | Monospace is the typing-app look, and it adds no bytes. |
+| The **word card sits under the text** on desktop and **above it on phones**, where the virtual keyboard covers the lower half. Examples and other meanings are behind a toggle that stays open across words once opened. | The card has to stay visible while typing without making the page scroll. |
+| When the text box loses focus the text blurs and says "Click here or start typing to focus". Any letter typed on the page, or right after picking a config option, goes to the test. | It makes the focus state obvious, which matters now that the text box has no border. |
+| Bangla text uses **system Bangla fonts** (Noto Sans Bengali, Nirmala UI, Kohinoor Bangla…) via `lang="bn"`. | Every current OS ships one, so there is nothing to download. |
 
 ## Typing engine and formulas
 
@@ -61,7 +74,7 @@ decision and the reason.
 | Static assets are served under **`/assets/<content-hash>/…`** with `immutable` caching. HTML is `no-cache`. | There is no build step, but relative ES-module imports still bust the cache together on every deploy. |
 | HTML pages are rendered **once at startup** from `app/templates/` (with partials and `{{PLACEHOLDERS}}`), not per request. | They're fast, and the FAQ text is defined once (`app/content.py`) for both the page and the FAQPage JSON-LD. |
 | **Strict CSP** (`script-src 'self'` plus the sha256 of the tiny inline theme script, no `unsafe-inline` or `unsafe-eval`). | It satisfies Best Practices, and the inline script prevents a flash of the wrong theme. |
-| Fonts are **Inter** (UI) and **Source Serif 4** (typing text and examples), as self-hosted variable woff2 Latin subsets with `font-display: swap`, preloaded. Both are OFL, and their licenses ship in `app/static/fonts/`. | This meets the brief's typography and performance requirements. IPA falls back to system fonts that contain IPA glyphs. |
+| Fonts are **Inter** (UI) and **Source Serif 4** (examples and results), as self-hosted variable woff2 Latin subsets with `font-display: swap`, preloaded. Both are OFL, and their licenses ship in `app/static/fonts/`. | This meets the brief's typography and performance requirements. IPA falls back to system fonts that contain IPA glyphs. |
 | `CONTACT_EMAIL` is a **placeholder** (`hello@typingtestspeedonline.com`). It can be overridden with the env var. | We don't publish a personal address without asking. |
 | Social proof is limited to the real library size, computed from the JSON files at startup. | The brief bans fake numbers, and there are none. |
 | The OG image and icons are rendered by `scripts/make_images.py` with Playwright. | No extra imaging dependency is needed. |

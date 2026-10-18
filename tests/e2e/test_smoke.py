@@ -133,7 +133,7 @@ def test_mobile_390_no_horizontal_scroll(browser, server):
     assert box["y"] + box["height"] <= MOBILE["height"], "typing box should be above the fold"
     card = page.locator("#word-card").bounding_box()
     assert card["y"] + card["height"] <= box["y"] + 1, "card sits above the text, never covering it"
-    for path in ("/my-words", "/privacy", "/terms"):
+    for path in ("/about", "/my-words", "/privacy", "/terms"):
         page.goto(server + path)
         assert no_horizontal_scroll(page), path
 
@@ -144,6 +144,47 @@ def test_mobile_390_no_horizontal_scroll(browser, server):
     page.wait_for_selector("#result-dialog[open]", timeout=20000)
     assert no_horizontal_scroll(page)
     assert page.evaluate("(() => { const d = document.querySelector('#result-dialog'); return d.scrollWidth <= d.clientWidth; })()")
+    assert not errors, errors
+
+
+@pytest.mark.parametrize("viewport", [DESKTOP, {"width": 1366, "height": 768}, {"width": 1280, "height": 720}])
+def test_home_is_one_screen_with_card_under_text(browser, server, viewport):
+    page, errors = new_page(browser, viewport)
+    page.goto(server + "/")
+    wait_for_fresh_card(page)
+    assert page.evaluate("document.documentElement.scrollHeight <= window.innerHeight"), "home should not scroll"
+    box = page.locator("#textbox").bounding_box()
+    card = page.locator("#word-card").bounding_box()
+    assert card["y"] >= box["y"] + box["height"], "card sits under the text on desktop"
+    assert page.locator(".site-footer").bounding_box()["y"] < viewport["height"]
+    assert not errors, errors
+
+
+def test_card_shows_bangla_meaning_for_the_sense(browser, server):
+    page, _ = new_page(browser, DESKTOP)
+    page.goto(server + "/privacy")
+    html = page.evaluate(
+        """async () => {
+            const cfg = JSON.parse(document.getElementById('app-config').textContent);
+            const { cardHtml } = await import(cfg.assets + '/js/card.js');
+            const rec = { word: 'run', ipa: '', forms: [], bn: { verb: ['দৌড়ানো', 'চলা'], noun: ['ছুট'] },
+              senses: [{ pos: 'noun', label: 'A jog', meaning: 'an act of running', examples: ['We went for a run in the park today.'] },
+                       { pos: 'verb', label: 'To move fast', meaning: 'to move quickly on foot', examples: ['I run to the shop every single morning.'] }] };
+            return [cardHtml(rec, rec.senses[1].examples[0]), cardHtml({ ...rec, bn: undefined }, '')];
+        }"""
+    )
+    assert '<span lang="bn">দৌড়ানো, চলা</span>' in html[0]
+    assert 'class="bn"' not in html[1]
+
+
+def test_about_page_sections(browser, server):
+    page, errors = new_page(browser, MOBILE, is_mobile=True, has_touch=True)
+    page.goto(server + "/about")
+    for sid in ("how", "modes", "bangla", "why", "shortcuts", "faq"):
+        assert page.locator(f"section#{sid}").count() == 1, sid
+    assert page.locator(".faq-item").count() >= 8
+    page.click("a.btn-primary[href='/']")
+    page.wait_for_selector("#typing-input")
     assert not errors, errors
 
 

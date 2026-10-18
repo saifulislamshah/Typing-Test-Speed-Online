@@ -62,31 +62,35 @@ def _faq_html() -> str:
     return "\n".join(items)
 
 
-def _jsonld() -> str:
-    data = [
-        {
-            "@context": "https://schema.org",
-            "@type": "WebApplication",
-            "name": config.APP_NAME,
-            "url": config.SITE_URL + "/",
-            "applicationCategory": "EducationalApplication",
-            "operatingSystem": "Any",
-            "browserRequirements": "Requires JavaScript",
-            "inLanguage": "en",
-            "isAccessibleForFree": True,
-            "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-            "description": "Test your typing speed and learn new English words as you type.",
-        },
-        {
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            "mainEntity": [
-                {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}}
-                for q, a in FAQ
-            ],
-        },
-    ]
+def _ld(data: dict) -> str:
     return json.dumps(data, separators=(",", ":")).replace("</", "<\\/")
+
+
+def _jsonld_app() -> str:
+    return _ld({
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": config.APP_NAME,
+        "url": config.SITE_URL + "/",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript",
+        "inLanguage": "en",
+        "isAccessibleForFree": True,
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+        "description": "Test your typing speed and learn new English words, with Bangla meanings, as you type.",
+    })
+
+
+def _jsonld_faq() -> str:
+    return _ld({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}}
+            for q, a in FAQ
+        ],
+    })
 
 
 def _client_config() -> str:
@@ -112,7 +116,7 @@ def _fmt(n: int) -> str:
 
 
 PARTIALS = {name: (TEMPLATES / f"_{name}.html").read_text(encoding="utf-8") for name in ("head", "header", "footer")}
-NAV = {"test": "/#test", "my-words": "/my-words", "how": "/#how", "faq": "/#faq"}
+NAV = ("test", "my-words", "about")
 THEME_SCRIPT = (TEMPLATES / "_theme.js").read_text(encoding="utf-8").strip()
 THEME_HASH = base64.b64encode(hashlib.sha256(THEME_SCRIPT.encode()).digest()).decode()
 CSP = (
@@ -143,8 +147,10 @@ def render(name: str, *, title: str, description: str, path: str, current: str =
         "ASSETS": ASSETS,
         "WORD_COUNT": _fmt(store.total_words),
         "SENTENCE_COUNT": _fmt(store.total_sentences),
+        "BANGLA_COUNT": _fmt(store.total_bangla),
         "FAQ_HTML": _faq_html(),
-        "JSONLD": _jsonld(),
+        "JSONLD_APP": _jsonld_app(),
+        "JSONLD_FAQ": _jsonld_faq(),
         "CONFIG_JSON": _client_config(),
     }
     # Partials contain placeholders too, so substitute until stable.
@@ -155,11 +161,14 @@ def render(name: str, *, title: str, description: str, path: str, current: str =
 
 PAGES = {
     "/": ("index.html", "Typing Speed Test Online - Type Faster & Learn English Words",
-          "Test your typing speed and learn new English words as you type. See each word's meaning and "
-          "real example sentences. Free, no sign-up.", "test"),
+          "Test your typing speed and learn new English words as you type. See each word's meaning in "
+          "English and Bangla, with real example sentences. Free, no sign-up.", "test"),
+    "/about": ("about.html", f"How It Works & FAQ | {config.APP_NAME}",
+               "How the typing test works: levels, modes, Bangla meanings, keyboard shortcuts and answers to "
+               "common questions about WPM, accuracy and your data.", "about"),
     "/my-words": ("my-words.html", f"My Words - Your Saved Vocabulary | {config.APP_NAME}",
-                  "Review the English words you saved during typing tests, with meanings, pronunciation and "
-                  "example sentences. Practice them again for free.", "my-words"),
+                  "Review the English words you saved during typing tests, with English and Bangla meanings, "
+                  "pronunciation and example sentences. Track your progress and practice again.", "my-words"),
     "/privacy": ("privacy.html", f"Privacy Policy | {config.APP_NAME}",
                  "No account, no tracking: your typing results and saved words stay in your own browser.", ""),
     "/terms": ("terms.html", f"Terms of Use | {config.APP_NAME}",
@@ -224,8 +233,8 @@ def manifest() -> JSONResponse:
         "short_name": config.APP_SHORT_NAME,
         "start_url": "/",
         "display": "standalone",
-        "background_color": "#fbfaf7",
-        "theme_color": "#1d4ed8",
+        "background_color": "#25272c",
+        "theme_color": "#25272c",
         "icons": [
             {"src": f"{ASSETS}/img/icon-192.png", "sizes": "192x192", "type": "image/png"},
             {"src": f"{ASSETS}/img/icon-512.png", "sizes": "512x512", "type": "image/png"},

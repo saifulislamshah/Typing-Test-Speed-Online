@@ -1,5 +1,5 @@
 // Result dialog: rank, message, personal best, words learned, analysis, sharing.
-import { $, cfg, esc, formsOf, highlight, meaningSentence, sensesHtml, speakBtn, wireWordUi } from './util.js';
+import { $, bnHtml, cfg, esc, formsOf, highlight, meaningSentence, sensesHtml, speakBtn, wireWordUi } from './util.js';
 import { lineChart } from './chart.js';
 import { canNativeShare, copyText, shareLinks } from './share.js';
 import { burst } from './confetti.js';
@@ -150,6 +150,7 @@ function learnedHtml(it, i, mode) {
 <div class="lw-head"><label><input type="checkbox" value="${esc(rec.id)}" checked><span class="sr-only">Save ${esc(rec.word)}</span></label>
 <span class="lw-word">${esc(rec.word)}</span>${rec.ipa ? `<span class="ipa muted">${esc(rec.ipa)}</span>` : ''}${speakBtn(rec.word)}</div>
 <p class="lw-meaning">${meaningSentence(rec, rec.senses[senseIndex(rec, sentence)])}</p>
+${bnHtml(rec, rec.senses[senseIndex(rec, sentence)].pos)}
 <p class="lw-typed">${mode === 'speed' ? 'Example: ' : 'You typed: '}“${highlight(sentence, formsOf(rec))}”</p>
 <button type="button" class="link-btn" data-toggle="All meanings and examples" data-less="Hide meanings" aria-expanded="false" aria-controls="${id}">All meanings and examples</button>
 <div class="lw-more" id="${id}" hidden>${sensesHtml(rec, rec.senses)}</div></li>`;

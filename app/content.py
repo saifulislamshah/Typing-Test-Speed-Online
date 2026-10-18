@@ -12,6 +12,11 @@ FAQ = [
      "Meanings and example sentences come from Wiktionary, the free dictionary written by volunteers "
      "(CC BY-SA 4.0), with a few examples from Princeton WordNet. We filter out rare, old-fashioned and "
      "offensive senses and keep short, everyday sentences that are easy to type."),
+    ("Can I see the meanings in Bangla?",
+     "Yes. Every word card shows up to three Bangla (বাংলা) meanings for the part of speech used in the "
+     "sentence you are typing. Your results and My Words show them too. They are machine translations from "
+     "Google Translate's dictionary, made once when the word list was built, so check important words in a "
+     "full dictionary."),
     ("How are the levels chosen?",
      "Words are grouped by how often they appear in everyday English, using the open wordfreq project. "
      "Easy words are common, Medium words are less common, and Hard words are rarer but still useful."),
@@ -22,7 +27,10 @@ FAQ = [
      "Yes. Save words from the results screen, then open My Words and choose Practice my words. "
      "You will type new example sentences for each saved word."),
     ("Does it work on phones and tablets?",
-     "Yes. Tap the text box to open your keyboard and start typing. The timer starts on your first key."),
+     "Yes. Tap the text to open your keyboard and start typing. The timer starts on your first key."),
+    ("How do I restart a test?",
+     "Press Esc at any time, or Tab while a test is running. You can also click the restart button under "
+     "the text. Changing the level, mode or length starts a fresh test too."),
     ("Is it free?",
      "Yes, completely free, with no sign-up and no locked features."),
 ]

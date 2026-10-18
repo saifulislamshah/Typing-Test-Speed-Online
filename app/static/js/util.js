@@ -22,6 +22,21 @@ export function highlight(text, forms) {
 export const meaningSentence = (rec, sense = rec.senses[0]) =>
   `<strong>${esc(cap(rec.word))}</strong> means ${esc(sense.meaning)}.`;
 
+// ---- Bangla meanings: rec.bn = { pos: [meanings] }
+// Meanings for one part of speech, falling back to another of the word's parts of speech.
+export const bnFor = (rec, pos) => (rec.bn && (rec.bn[pos] || Object.values(rec.bn)[0])) || null;
+export function bnHtml(rec, pos) {
+  const m = bnFor(rec, pos);
+  return m ? `<p class="bn"><span class="bn-tag">বাংলা</span> <span lang="bn">${esc(m.join(', '))}</span></p>` : '';
+}
+// Every part of speech, for full word cards ("verb: ..., noun: ...").
+export function bnAllHtml(rec) {
+  const e = Object.entries(rec.bn || {});
+  if (!e.length) return '';
+  if (e.length === 1) return bnHtml(rec, e[0][0]);
+  return `<p class="bn"><span class="bn-tag">বাংলা</span> ${e.map(([p, m]) => `<span class="bn-pos">${esc(p)}</span> <span lang="bn">${esc(m.join(', '))}</span>`).join(' <span aria-hidden="true">·</span> ')}</p>`;
+}
+
 // ---- pronunciation (Web Speech API)
 export const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
 let voice = null;
@@ -84,7 +99,7 @@ export function initTheme() {
   const btn = document.getElementById('theme-toggle');
   if (!btn) return;
   const root = document.documentElement;
-  const isDark = () => (root.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')) === 'dark';
+  const isDark = () => root.dataset.theme !== 'light'; // dark is the default theme
   const sync = () => btn.setAttribute('aria-label', isDark() ? 'Switch to light theme' : 'Switch to dark theme');
   btn.addEventListener('click', () => {
     const t = isDark() ? 'light' : 'dark';

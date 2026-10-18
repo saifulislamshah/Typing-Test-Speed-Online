@@ -87,6 +87,7 @@ export class Engine {
       const el = document.createElement('span');
       el.className = this.vocab[i] ? 'w vocab' : 'w';
       if (i === this.wi) el.innerHTML = this.charsHtml(this.words[i], '', true);
+      else if (this.vocab[i]) el.innerHTML = `<span class="vw">${esc(this.words[i])}</span> `;
       else el.textContent = `${this.words[i]} `;
       frag.append(el);
     }

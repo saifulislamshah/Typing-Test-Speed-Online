@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{HEAD}}
+<script type="application/ld+json">{{JSONLD_FAQ}}</script>
+<script type="module" src="{{ASSETS}}/js/page.js"></script>
+</head>
+<body>
+{{HEADER}}
+<main id="main" class="wrap page about">
+  <header class="about-hero">
+    <p class="eyebrow">About the test</p>
+    <h1>How it works</h1>
+    <p class="lede">A typing speed test that teaches you a new English word with every sentence, with its meaning in plain English and in Bangla (বাংলা).</p>
+    <p class="library-note">Library of {{WORD_COUNT}} words and {{SENTENCE_COUNT}} example sentences. {{BANGLA_COUNT}} words have Bangla meanings.</p>
+  </header>
+
+  <div class="about-layout">
+    <nav class="toc" aria-label="On this page">
+      <p class="toc-h">On this page</p>
+      <a href="#how">How it works</a>
+      <a href="#modes">Modes and levels</a>
+      <a href="#bangla">Bangla meanings</a>
+      <a href="#why">Why practice here</a>
+      <a href="#shortcuts">Keyboard shortcuts</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+
+    <div class="about-body">
+      <section class="about-section" id="how" aria-labelledby="how-title">
+        <h2 id="how-title">How it works</h2>
+        <ol class="steps">
+          <li class="step"><span class="step-num" aria-hidden="true">1</span><h3>Pick your test</h3><p>Choose a level, a mode and a length from the bar above the text. One minute is the most popular.</p></li>
+          <li class="step"><span class="step-num" aria-hidden="true">2</span><h3>Meet the word</h3><p>The card under the text shows the word, how it sounds, its plain-English meaning and its Bangla meaning.</p></li>
+          <li class="step"><span class="step-num" aria-hidden="true">3</span><h3>Type a real sentence</h3><p>Just start typing. The timer starts on your first key, and each sentence uses the word in context.</p></li>
+          <li class="step"><span class="step-num" aria-hidden="true">4</span><h3>Review and practice</h3><p>See your WPM, accuracy and problem keys, then save new words and practice them again later.</p></li>
+        </ol>
+      </section>
+
+      <section class="about-section" id="modes" aria-labelledby="modes-title">
+        <h2 id="modes-title">Modes and levels</h2>
+        <div class="two-col">
+          <div class="panel">
+            <h3>Learn words</h3>
+            <p>You type full example sentences. The vocabulary word is underlined in the text, and the card explains it while you type.</p>
+          </div>
+          <div class="panel">
+            <h3>Speed only</h3>
+            <p>You type a stream of single vocabulary words for pure speed. The card still shows each word, so you learn as you go.</p>
+          </div>
+        </div>
+        <dl class="levels">
+          <div><dt>Easy</dt><dd>Common everyday words, such as <em>advantage</em> or <em>afraid</em>.</dd></div>
+          <div><dt>Medium</dt><dd>Less common words you meet in news and books, such as <em>abide</em> or <em>legitimacy</em>.</dd></div>
+          <div><dt>Hard</dt><dd>Rarer but useful words, such as <em>revamp</em> or <em>monolithic</em>.</dd></div>
+        </dl>
+        <p class="note">Levels come from how often a word appears in everyday English (the open <a href="https://github.com/rspeer/wordfreq">wordfreq</a> project).</p>
+      </section>
+
+      <section class="about-section" id="bangla" aria-labelledby="bangla-title">
+        <h2 id="bangla-title">Bangla meanings <span lang="bn" class="bn-inline">(বাংলা অর্থ)</span></h2>
+        <p>Every word card shows up to three Bangla meanings for the part of speech used in the sentence you are typing. For example, <em>abide</em> as a verb shows <span lang="bn" class="bn-inline">বরদাস্ত করা, থাকা, প্রতীক্ষা করা</span>.</p>
+        <p>The same meanings appear in your results and on <a href="/my-words">My Words</a>. They are machine translations from Google Translate's dictionary, made once when the word list was built, so check important words in a full dictionary.</p>
+      </section>
+
+      <section class="about-section" id="why" aria-labelledby="why-title">
+        <h2 id="why-title">Why practice here</h2>
+        <ul class="benefits">
+          <li class="benefit"><h3>Faster typing</h3><p>Live WPM, accuracy and problem keys show exactly what to work on next.</p></li>
+          <li class="benefit"><h3>Bigger vocabulary</h3><p>Every test teaches new words, from everyday to advanced.</p></li>
+          <li class="benefit"><h3>Real sentences</h3><p>Examples show how each word is really used, not just what it means.</p></li>
+          <li class="benefit"><h3>Free, no sign-up</h3><p>Everything is free. Your words and results stay in your browser.</p></li>
+        </ul>
+      </section>
+
+      <section class="about-section" id="shortcuts" aria-labelledby="shortcuts-title">
+        <h2 id="shortcuts-title">Keyboard shortcuts</h2>
+        <table class="shortcuts">
+          <tbody>
+            <tr><th scope="row"><kbd>Esc</kbd></th><td>Restart the test at any time</td></tr>
+            <tr><th scope="row"><kbd>Tab</kbd></th><td>Restart while a test is running</td></tr>
+            <tr><th scope="row">Any letter</th><td>Focus the text and start typing</td></tr>
+            <tr><th scope="row"><kbd>Backspace</kbd></th><td>Fix a mistake in the current word</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="about-section" id="faq" aria-labelledby="faq-title">
+        <h2 id="faq-title">Frequently asked questions</h2>
+        <div class="faq">
+{{FAQ_HTML}}
+        </div>
+      </section>
+
+      <section class="about-cta" aria-labelledby="cta-title">
+        <h2 id="cta-title">Ready to learn your next word?</h2>
+        <p>One minute is enough to find your speed and learn a few new words.</p>
+        <a class="btn btn-primary btn-lg" href="/">Start a typing test</a>
+      </section>
+    </div>
+  </div>
+</main>
+{{FOOTER}}
+</body>
+</html>

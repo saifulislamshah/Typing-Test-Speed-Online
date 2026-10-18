@@ -11,6 +11,25 @@
   <p class="lede" id="mw-summary">Words you save after a test appear here, with every meaning and example.</p>
   <p class="note">Your words are saved in this browser - clearing site data will remove them.</p>
 
+  <section class="progress" id="progress" aria-labelledby="progress-title" hidden>
+    <h2 id="progress-title">Your progress</h2>
+    <div class="progress-grid">
+      <div class="progress-tile"><span class="stat-num" id="pb-wpm">0</span><span class="stat-label">personal best WPM</span></div>
+      <div class="progress-tile"><span class="stat-num" id="saved-count">0</span><span class="stat-label">saved words</span></div>
+      <div class="progress-tile"><span class="stat-num" id="tests-count">0</span><span class="stat-label">tests taken</span></div>
+    </div>
+    <h3 class="small-h">Last 10 tests</h3>
+    <div class="history-chart" id="history-chart"></div>
+    <div class="table-wrap">
+      <table class="history">
+        <thead><tr><th scope="col">Date</th><th scope="col">WPM</th><th scope="col">Accuracy</th><th scope="col">Words learned</th><th scope="col">Length</th></tr></thead>
+        <tbody id="history-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <h2 class="mw-h" id="mw-h">Saved words</h2>
+
   <div class="mw-toolbar" id="mw-toolbar" hidden>
     <div class="field grow">
       <label for="mw-search">Search your words</label>
@@ -38,7 +57,7 @@
 
   <div class="empty-state" id="mw-empty" hidden>
     <p>Words you learn during tests will appear here. Start a 1-minute test.</p>
-    <a class="btn btn-primary btn-lg" href="/#test">Start a 1-minute test</a>
+    <a class="btn btn-primary btn-lg" href="/">Start a 1-minute test</a>
   </div>
   <p class="mw-count" id="mw-count" role="status"></p>
   <ul class="mw-list" id="mw-list"></ul>

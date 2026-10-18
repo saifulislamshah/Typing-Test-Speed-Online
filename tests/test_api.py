@@ -120,9 +120,11 @@ def test_pages_render_with_metadata():
     assert "<title>Typing Speed Test Online - Type Faster &amp; Learn English Words</title>" in html
     assert 'name="description" content="Test your typing speed and learn new English words as you type.' in html
     assert html.count("<h1") == 1
-    assert '"@type":"FAQPage"' in html and '"@type":"WebApplication"' in html
+    assert '"@type":"WebApplication"' in html
     assert "{{" not in html
-    for path in ("/my-words", "/privacy", "/terms"):
+    about = client.get("/about").text
+    assert '"@type":"FAQPage"' in about and 'id="faq"' in about and 'id="how"' in about
+    for path in ("/about", "/my-words", "/privacy", "/terms"):
         page = client.get(path)
         assert page.status_code == 200 and page.text.count("<h1") == 1 and "{{" not in page.text
 
@@ -137,5 +139,5 @@ def test_security_headers_and_404():
 
 def test_robots_sitemap_manifest():
     assert "Sitemap:" in client.get("/robots.txt").text
-    assert "<loc>" in client.get("/sitemap.xml").text
+    assert "/about</loc>" in client.get("/sitemap.xml").text
     assert client.get("/manifest.webmanifest").json()["icons"]

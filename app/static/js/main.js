@@ -6,14 +6,12 @@ import { ApiSource, practiceItems, toItems } from './stream.js';
 import { Card } from './card.js';
 import { Results } from './results.js';
 import { analyze } from './stats.js';
-import { lineChart } from './chart.js';
 
 initTheme();
 
 const form = $('#settings');
 const input = $('#typing-input');
 const live = $('#live-region');
-const RING = 119.38;
 let settings = { duration: String(cfg.defaultDuration), custom: 90, level: cfg.defaultLevel, mode: cfg.defaultMode, ...store.getSettings() };
 let source = null, loading = false, testId = 0, practice = null, practiceLabel = '';
 let learnedCount = 0, cueStep = 0, lastStats = 0, totalMs = 60000;
@@ -42,7 +40,7 @@ const engine = new Engine({
       learnedCount++;
       card.learned(item.rec.word);
     },
-    onStart() { $('#typing-hint').textContent = 'Typing... Esc or Tab restarts.'; },
+    onStart() { $('#typing-hint').innerHTML = '<kbd>esc</kbd> or <kbd>tab</kbd> restart test'; document.body.classList.add('is-running'); },
     onTick: tick,
     onLow: fill,
     onPause(paused) { if (paused) announce('Paused. Press any key to continue.'); },
@@ -55,8 +53,7 @@ function showTime(leftMs) {
   const s = Math.ceil(leftMs / 1000);
   const long = totalMs > 120000;
   $('#stat-time').textContent = long ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` : s;
-  $('#stat-time-unit').textContent = long ? 'time left' : 'seconds left';
-  $('#ring-fg').style.strokeDashoffset = (RING * (1 - leftMs / totalMs)).toFixed(2);
+  $('#time-fill').style.transform = `scaleX(${(leftMs / totalMs).toFixed(4)})`;
 }
 
 function showStats(st) {
@@ -109,7 +106,8 @@ function newTest(opts = {}) {
   showTime(totalMs);
   showStats({ net_wpm: 0, cpm: 0, accuracy: 100 });
   $('#goal-cue').hidden = true;
-  $('#typing-hint').innerHTML = 'Start typing to begin. <kbd>Esc</kbd> restarts.';
+  $('#typing-hint').innerHTML = '<kbd>esc</kbd> restart test <span aria-hidden="true">·</span> start typing to begin';
+  document.body.classList.remove('is-running');
   $('#practice-banner').hidden = !practice;
   if (practice) {
     $('#practice-text').textContent = practiceLabel || `Practicing ${practice.length} words with new example sentences`;
@@ -129,7 +127,6 @@ const results = new Results({
     if (reason === 'practice') return;
     if (reason === 'settings') {
       newTest({ practice: null });
-      $('#test').scrollIntoView({ block: 'start' });
       form.querySelector('input[name="duration"]:checked')?.focus();
       return;
     }
@@ -140,7 +137,6 @@ const results = new Results({
     newTest({ practice: items.map((it) => ({ rec: it.rec, typed: it.sentence })), label: `Practicing ${items.length} words with new example sentences` });
     input.focus({ preventScroll: true });
   },
-  onSaved: renderProgress,
 });
 
 async function finish(res) {
@@ -151,7 +147,6 @@ async function finish(res) {
   if (wasPractice) store.markPracticed(res.items);
   const sum = results.open(res, a, prevBest, { practice: wasPractice });
   store.addResult({ t: Date.now(), wpm: sum.wpm, acc: sum.acc, cpm: Math.round(a.cpm), learned: sum.learned, dur: seconds(), mode: res.mode, level: settings.level });
-  renderProgress();
   announce(`Time's up. ${sum.wpm} words per minute, ${sum.acc}% accuracy. You're a ${sum.name}. You learned ${sum.learned} words.`);
   try {
     const ctrl = new AbortController();
@@ -164,29 +159,6 @@ async function finish(res) {
     });
     if (resp.ok) results.renderAnalysis(await resp.json());
   } catch { /* keep the client-side analysis */ }
-}
-
-// ---------------------------------------------------------------- progress section
-function renderProgress() {
-  const hist = store.getHistory();
-  const sec = $('#progress');
-  if (!hist.length) { sec.hidden = true; return; }
-  sec.hidden = false;
-  const ws = store.wordStats();
-  $('#pb-wpm').textContent = store.getBest();
-  $('#saved-count').textContent = ws.saved;
-  $('#tests-count').textContent = hist.length;
-  const z = $('#zeigarnik');
-  z.hidden = !ws.saved;
-  z.innerHTML = ws.needPractice
-    ? `You saved ${ws.saved} word${ws.saved === 1 ? '' : 's'} - ${ws.needPractice} still need practice. <a href="/?practice=saved">Practice them now</a>`
-    : `You saved ${ws.saved} word${ws.saved === 1 ? '' : 's'} - all practiced. Nice work!`;
-  const last = hist.slice(0, 10);
-  $('#history-body').innerHTML = last
-    .map((h) => `<tr><td>${new Date(h.t).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td>${h.wpm}</td><td>${h.acc}%</td><td>${h.learned}</td><td>${h.dur >= 60 ? `${Math.round(h.dur / 60)} min` : `${h.dur} s`}</td></tr>`)
-    .join('');
-  const series = last.slice().reverse().map((h, i) => ({ t: i + 1, wpm: h.wpm }));
-  $('#history-chart').innerHTML = lineChart(series, { h: 120, label: 'WPM in your last tests', x0: 1, xFmt: (t) => (t === 1 ? 'oldest' : 'latest') });
 }
 
 // ---------------------------------------------------------------- settings
@@ -214,19 +186,17 @@ form.addEventListener('change', (e) => {
 
 $('#practice-exit').addEventListener('click', () => { newTest({ practice: null }); input.focus(); });
 $('#restart-btn').addEventListener('click', () => { newTest(); input.focus(); });
-$('#cta-start').addEventListener('click', () => {
-  $('#test').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
-  input.focus({ preventScroll: true });
-});
 
-// Typing anywhere on the page (outside a control) goes to the test.
+// Typing a letter anywhere on the page goes to the test, also right after picking an
+// option in the config bar (radios ignore letters anyway). Space still toggles controls.
 document.addEventListener('keydown', (e) => {
-  if (e.target === document.body && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && !$('#result-dialog').open) input.focus({ preventScroll: true });
+  const t = e.target;
+  const free = t === document.body || t.type === 'radio';
+  if (free && e.key.length === 1 && e.key !== ' ' && !e.ctrlKey && !e.metaKey && !e.altKey && !$('#result-dialog').open) input.focus({ preventScroll: true });
 });
 
 // ---------------------------------------------------------------- start
 applySettings();
-renderProgress();
 const params = new URLSearchParams(location.search);
 if (params.get('practice') === 'saved') {
   const saved = Object.values(store.getWords()).filter((w) => !w.known).map((w) => ({ rec: w.r, typed: w.typed }));

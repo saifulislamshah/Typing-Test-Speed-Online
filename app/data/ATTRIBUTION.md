@@ -19,6 +19,9 @@ The vocabulary files in this folder (`vocab_easy.json`, `vocab_medium.json`,
   "WordNet 3.0 Copyright 2006 by Princeton University. All rights reserved."
 - **wordfreq** (Robyn Speer, MIT license; data CC BY-SA 4.0) for word frequency and
   difficulty levels.
+- **Bangla meanings** (the `bn` field) are machine translations from Google Translate's
+  dictionary mode, added by `scripts/build_bangla.py`. They are not part of the
+  Wiktionary-derived text.
 
 ## License of the generated files
 

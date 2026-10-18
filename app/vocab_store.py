@@ -28,6 +28,10 @@ class VocabStore:
     def total_sentences(self) -> int:
         return sum(len(s["examples"]) for recs in self.levels.values() for r in recs for s in r["senses"])
 
+    @property
+    def total_bangla(self) -> int:
+        return sum(1 for recs in self.levels.values() for r in recs if r.get("bn"))
+
     def _order(self, level: str, seed: int) -> list[int]:
         return _permutation(level, seed, len(self.levels[level]))
 

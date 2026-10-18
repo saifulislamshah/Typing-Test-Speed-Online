@@ -101,6 +101,7 @@ class WordRecord(BaseModel):
     ipa: str
     senses: list[Sense]
     forms: list[str] = []
+    bn: dict[str, list[str]] = {}  # Bangla meanings by part of speech
     source: str
 
 

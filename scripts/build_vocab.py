@@ -22,6 +22,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import build_bangla  # noqa: E402
 from vocab_filters import (  # noqa: E402
     POS_MAP, clean_example, clean_gloss, found_forms, inflections, make_label,
     pick_ipa, quotation_year, quote_is_sentence, sense_is_usable,
@@ -321,10 +322,12 @@ def main() -> None:
     rng = random.Random(args.seed)
     meta = {"levels": {}, "bands": bands, "built": dt.date.today().isoformat(),
             "dump_date": (CACHE / "dump-date.txt").read_text() if (CACHE / "dump-date.txt").exists() else "",
-            "fallbacks": report}
+            "fallbacks": report, "bangla": {}}
+    bangla_cache = build_bangla.load_cache()  # re-applies cached Bangla meanings, no network
     print("\n=== Build report ===")
     for lv, recs in levels.items():
         recs.sort(key=lambda r: r["id"])
+        meta["bangla"][lv] = build_bangla.apply(recs, bangla_cache)
         (DATA / f"vocab_{lv}.json").write_text(
             json.dumps(recs, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         n_ex = [sum(len(s["examples"]) for s in r["senses"]) for r in recs]
@@ -335,6 +338,9 @@ def main() -> None:
               f" | avg examples {statistics.fmean(n_ex or [0]):.2f} | zipf {bands[lv][0]}-{bands[lv][1]}")
     for line in report:
         print("  fallback:", line)
+    missing = sum(len(r) for r in levels.values()) - sum(meta["bangla"].values())
+    if missing:
+        print(f"  {missing} words have no Bangla meaning yet: run python scripts/build_bangla.py")
     meta["total_words"] = sum(v["words"] for v in meta["levels"].values())
     meta["total_sentences"] = sum(v["sentences"] for v in meta["levels"].values())
     (DATA / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
@@ -378,6 +384,9 @@ The vocabulary files in this folder (`vocab_easy.json`, `vocab_medium.json`,
   "WordNet 3.0 Copyright 2006 by Princeton University. All rights reserved."
 - **wordfreq** (Robyn Speer, MIT license; data CC BY-SA 4.0) for word frequency and
   difficulty levels.
+- **Bangla meanings** (the `bn` field) are machine translations from Google Translate's
+  dictionary mode, added by `scripts/build_bangla.py`. They are not part of the
+  Wiktionary-derived text.
 
 ## License of the generated files
 

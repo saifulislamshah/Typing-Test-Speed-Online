@@ -39,6 +39,19 @@ def test_every_record_is_well_formed(level):
                 assert found_forms(ex, forms), (r["id"], ex)
 
 
+@pytest.mark.parametrize("level", LEVELS)
+def test_bangla_meanings_are_well_formed(level):
+    for r in RECORDS[level]:
+        if "bn" not in r:
+            continue
+        assert r["bn"], r["id"]
+        assert set(r["bn"]) <= {s["pos"] for s in r["senses"]}, r["id"]
+        for meanings in r["bn"].values():
+            assert 1 <= len(meanings) <= 3 and len(set(meanings)) == len(meanings), r["id"]
+            for m in meanings:
+                assert re.search(r"[ঀ-৿]", m) and not re.search(r"[A-Za-z]", m), (r["id"], m)
+
+
 def test_ids_unique_across_levels():
     ids = [r["id"] for lv in LEVELS for r in RECORDS[lv]]
     assert len(ids) == len(set(ids))
