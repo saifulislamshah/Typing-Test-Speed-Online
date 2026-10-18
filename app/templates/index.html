@@ -11,19 +11,19 @@
   <h1 class="sr-only">Typing speed test: type faster and learn English words with Bangla meanings</h1>
 
   <form class="config" id="settings" aria-label="Test settings">
-    <fieldset class="cfg-group">
+    <fieldset class="cfg-group cfg-level">
       <legend class="sr-only">Level</legend>
       <svg class="cfg-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 20v-5M12 20V10M19 20V4"/></svg>
       <label class="opt"><input type="radio" name="level" value="easy"><span>easy</span></label>
       <label class="opt"><input type="radio" name="level" value="medium" checked><span>medium</span></label>
       <label class="opt"><input type="radio" name="level" value="hard"><span>hard</span></label>
     </fieldset>
-    <fieldset class="cfg-group">
+    <fieldset class="cfg-group cfg-mode">
       <legend class="sr-only">Mode</legend>
       <label class="opt"><input type="radio" name="mode" value="learn" checked><span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></svg>learn words</span></label>
       <label class="opt"><input type="radio" name="mode" value="speed"><span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>speed only</span></label>
     </fieldset>
-    <fieldset class="cfg-group" id="duration-group">
+    <fieldset class="cfg-group cfg-time" id="duration-group">
       <legend class="sr-only">Duration</legend>
       <svg class="cfg-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>
       <label class="opt"><input type="radio" name="duration" value="60" checked><span>1 min</span></label>
@@ -36,6 +36,10 @@
         <input type="number" id="custom-seconds" min="15" max="7200" step="5" value="90" inputmode="numeric">
         <span aria-hidden="true">sec</span>
       </span>
+    </fieldset>
+    <fieldset class="cfg-group cfg-bn">
+      <legend class="sr-only">Bangla meanings</legend>
+      <label class="opt" title="Show the Bangla meaning above each new word"><input type="checkbox" name="bangla" id="bangla-toggle" checked><span><span class="sr-only">Show Bangla meanings above words: </span><span lang="bn">বাংলা</span></span></label>
     </fieldset>
   </form>
 

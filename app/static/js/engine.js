@@ -33,7 +33,7 @@ export class Engine {
     clearInterval(this.timer);
     Object.assign(this, {
       duration: duration * 1000, finite, long, idleMs: idle * 1000, mode,
-      words: [], wordItem: [], vocab: [], items: [], typedWords: [],
+      words: [], wordItem: [], vocab: [], bn: [], items: [], typedWords: [],
       wi: 0, typed: '', keys: [], pauses: [], paused: false, pauseStart: 0,
       started: false, finished: false, t0: 0, lastKey: 0,
       ins: 0, okIns: 0, okChars: 0, curItem: -1, firstEl: 0, rendered: 0, shifting: false,
@@ -55,7 +55,10 @@ export class Engine {
         this.words.push(w);
         this.wordItem.push(idx);
         // Speed mode streams only vocab words, so highlighting would mark every word.
-        this.vocab.push(this.mode === 'learn' && (w.match(TOKEN) || []).some((t) => forms.has(t.toLowerCase())));
+        const isVocab = (w.match(TOKEN) || []).some((t) => forms.has(t.toLowerCase()));
+        this.vocab.push(this.mode === 'learn' && isVocab);
+        // Bangla label above the word: the vocab word in Learn mode, every word in Speed mode.
+        this.bn.push((this.mode === 'speed' || isVocab) && it.bn ? it.bn : '');
       }
       it.end = this.words.length - 1;
       this.items.push(it);
@@ -86,6 +89,7 @@ export class Engine {
     for (let i = this.rendered; i < end; i++) {
       const el = document.createElement('span');
       el.className = this.vocab[i] ? 'w vocab' : 'w';
+      if (this.bn[i]) el.dataset.bn = this.bn[i];
       if (i === this.wi) el.innerHTML = this.charsHtml(this.words[i], '', true);
       else if (this.vocab[i]) el.innerHTML = `<span class="vw">${esc(this.words[i])}</span> `;
       else el.textContent = `${this.words[i]} `;

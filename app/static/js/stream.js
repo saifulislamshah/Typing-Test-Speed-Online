@@ -1,6 +1,10 @@
 // Word supply: random words from the API (paged by seed, so no repeats in a
 // session), or a fixed list for practice sessions.
-import { formsOf } from './util.js';
+import { bnFor, formsOf } from './util.js';
+import { senseIndex } from './card.js';
+
+// The first Bangla meaning for the sense a sentence uses, shown above the word while typing.
+const bnOf = (rec, sentence) => bnFor(rec, rec.senses[senseIndex(rec, sentence)].pos)?.[0] || '';
 
 export class ApiSource {
   constructor(level) {
@@ -21,7 +25,7 @@ export class ApiSource {
 
 // One item per word: a sentence (Learn mode) or the bare word (Speed mode).
 export function toItems(recs, mode) {
-  return recs.map((rec) => ({ rec, forms: formsOf(rec), sentence: mode === 'speed' ? rec.word : rec.senses[0].examples[0] }));
+  return recs.map((rec) => ({ rec, forms: formsOf(rec), sentence: mode === 'speed' ? rec.word : rec.senses[0].examples[0], bn: bnOf(rec, rec.senses[0].examples[0]) }));
 }
 
 // A sentence the user has not typed yet, preferring a different meaning.
@@ -36,4 +40,7 @@ export function otherExample(rec, used) {
 
 // entries: [{ rec, typed }] -> practice items with a new sentence each
 export const practiceItems = (entries) =>
-  entries.map(({ rec, typed }) => ({ rec, forms: formsOf(rec), sentence: otherExample(rec, typed), practice: true }));
+  entries.map(({ rec, typed }) => {
+    const sentence = otherExample(rec, typed);
+    return { rec, forms: formsOf(rec), sentence, bn: bnOf(rec, sentence), practice: true };
+  });

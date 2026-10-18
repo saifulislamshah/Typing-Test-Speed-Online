@@ -177,6 +177,41 @@ def test_card_shows_bangla_meaning_for_the_sense(browser, server):
     assert 'class="bn"' not in html[1]
 
 
+def test_bangla_label_above_vocab_word_and_toggle(browser, server):
+    page, errors = new_page(browser, DESKTOP)
+
+    def add_bn(route):
+        data = route.fetch().json()
+        for w in data["words"]:
+            w["bn"] = {s["pos"]: ["বাংলা অর্থ"] for s in w["senses"]}
+        route.fulfill(json=data)
+
+    page.route("**/api/vocab*", add_bn)
+    page.goto(server + "/")
+    wait_for_fresh_card(page)
+    label = page.locator("#text-lines .w.vocab[data-bn]").first
+    assert label.get_attribute("data-bn") == "বাংলা অর্থ"
+    assert page.locator("#text-lines .w[data-bn]:not(.vocab)").count() == 0, "Learn mode labels vocab words only"
+    word_top = label.bounding_box()["y"]
+    label_bottom = page.evaluate("""() => {
+        const el = document.querySelector('#text-lines .w.vocab[data-bn]');
+        const st = getComputedStyle(el, '::before');
+        return el.getBoundingClientRect().top + parseFloat(st.top) + parseFloat(st.height);
+    }""")
+    assert label_bottom <= word_top + 2, "label sits above the word"
+    assert page.evaluate("document.documentElement.scrollHeight <= window.innerHeight")
+
+    page.keyboard.type("ab", delay=30)
+    page.click("label:has(#bangla-toggle)")
+    assert not page.is_checked("#bangla-toggle")
+    assert "show-bn" not in page.get_attribute("#textbox", "class")
+    assert page.locator("#text-lines .c.ok, #text-lines .c.err").count() == 2, "toggling does not restart the test"
+    page.reload()
+    wait_for_fresh_card(page)
+    assert not page.is_checked("#bangla-toggle"), "the choice is remembered"
+    assert not errors, errors
+
+
 def test_about_page_sections(browser, server):
     page, errors = new_page(browser, MOBILE, is_mobile=True, has_touch=True)
     page.goto(server + "/about")

@@ -171,15 +171,19 @@ function applySettings() {
   }
   $('#custom-seconds').value = settings.custom;
   $('#custom-field').hidden = settings.duration !== 'custom';
+  $('#bangla-toggle').checked = settings.bangla !== false;
+  $('#textbox').classList.toggle('show-bn', settings.bangla !== false);
 }
 
 form.addEventListener('submit', (e) => e.preventDefault());
 form.addEventListener('change', (e) => {
   const fd = new FormData(form);
   const custom = Math.min(cfg.customMax, Math.max(cfg.customMin, Math.round(+$('#custom-seconds').value || 90)));
-  settings = { duration: fd.get('duration'), custom, level: fd.get('level'), mode: fd.get('mode') };
+  settings = { duration: fd.get('duration'), custom, level: fd.get('level'), mode: fd.get('mode'), bangla: fd.get('bangla') === 'on' };
   store.saveSettings(settings);
   applySettings();
+  // Showing or hiding the Bangla labels doesn't need a new test.
+  if (e.target.name === 'bangla') { engine.scroll(); return; }
   newTest({ practice: null });
   if (e.target.name === 'duration' && settings.duration === 'custom' && e.target.type === 'radio') $('#custom-seconds').focus();
 });
@@ -191,7 +195,7 @@ $('#restart-btn').addEventListener('click', () => { newTest(); input.focus(); })
 // option in the config bar (radios ignore letters anyway). Space still toggles controls.
 document.addEventListener('keydown', (e) => {
   const t = e.target;
-  const free = t === document.body || t.type === 'radio';
+  const free = t === document.body || t.type === 'radio' || t.type === 'checkbox';
   if (free && e.key.length === 1 && e.key !== ' ' && !e.ctrlKey && !e.metaKey && !e.altKey && !$('#result-dialog').open) input.focus({ preventScroll: true });
 });
 

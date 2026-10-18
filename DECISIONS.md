@@ -32,6 +32,7 @@ decision and the reason.
 | Typing text uses the **system monospace font** (Cascadia Mono, SF Mono, Menlo, Consolas…), with no download. | Monospace is the typing-app look, and it adds no bytes. |
 | The **word card sits under the text** on desktop and **above it on phones**, where the virtual keyboard covers the lower half. Examples and other meanings are behind a toggle that stays open across words once opened. | The card has to stay visible while typing without making the page scroll. |
 | When the text box loses focus the text blurs and says "Click here or start typing to focus". Any letter typed on the page, or right after picking a config option, goes to the test. | It makes the focus state obvious, which matters now that the text box has no border. |
+| **Bangla labels above words while typing** (owner's request): the first Bangla meaning for the sentence's sense sits above the vocabulary word in Learn mode, and above every word in Speed mode. The config bar's **বাংলা** toggle hides them; the choice is saved and doesn't restart the test. With labels on, lines are 2.3em tall and the text is slightly smaller, so the test still fits one screen. | The meaning is visible exactly where the eyes are, without looking down at the card. Only one meaning is shown, so the label stays short. |
 | Bangla text uses **system Bangla fonts** (Noto Sans Bengali, Nirmala UI, Kohinoor Bangla…) via `lang="bn"`. | Every current OS ships one, so there is nothing to download. |
 
 ## Typing engine and formulas
