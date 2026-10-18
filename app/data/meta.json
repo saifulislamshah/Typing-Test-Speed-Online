@@ -1,0 +1,35 @@
+{
+  "levels": {
+    "easy": {
+      "words": 1258,
+      "sentences": 4204
+    },
+    "medium": {
+      "words": 2406,
+      "sentences": 6606
+    },
+    "hard": {
+      "words": 1460,
+      "sentences": 3593
+    }
+  },
+  "bands": {
+    "easy": [
+      4.5,
+      5.5
+    ],
+    "medium": [
+      3.5,
+      4.5
+    ],
+    "hard": [
+      2.5,
+      3.5
+    ]
+  },
+  "built": "2026-10-18",
+  "dump_date": "Sat, 03 Oct 2026 11:09:45 GMT",
+  "fallbacks": [],
+  "total_words": 5124,
+  "total_sentences": 14403
+}
