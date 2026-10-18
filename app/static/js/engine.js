@@ -54,7 +54,8 @@ export class Engine {
       for (const w of it.sentence.split(' ')) {
         this.words.push(w);
         this.wordItem.push(idx);
-        this.vocab.push((w.match(TOKEN) || []).some((t) => forms.has(t.toLowerCase())));
+        // Speed mode streams only vocab words, so highlighting would mark every word.
+        this.vocab.push(this.mode === 'learn' && (w.match(TOKEN) || []).some((t) => forms.has(t.toLowerCase())));
       }
       it.end = this.words.length - 1;
       this.items.push(it);

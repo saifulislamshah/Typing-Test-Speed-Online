@@ -37,6 +37,12 @@ decision and the reason.
 
 ## Learning UX
 
+- **Text colors** (changed at the owner's request): text not typed yet is gray (`--dim`,
+  #6B6761 in light mode), typed text is the full text color (black), and mistakes are red
+  with a wavy underline. This replaces the brief's "completed text is dimmed".
+- The bold/underlined vocabulary highlight appears in **Learn words** mode only. In Speed only
+  mode every word is a vocabulary word, so highlighting them all would carry no meaning.
+
 | Decision | Why |
 |---|---|
 | **"Learned"** means the sentence was completed (Learn mode) or the word was typed exactly (Speed mode). | Learn mode is about exposure to the word in context. In Speed mode, typing the word is the exposure. |
