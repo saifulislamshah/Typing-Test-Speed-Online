@@ -183,7 +183,7 @@ form.addEventListener('change', (e) => {
   store.saveSettings(settings);
   applySettings();
   // Showing or hiding the Bangla labels doesn't need a new test.
-  if (e.target.name === 'bangla') { engine.scroll(); return; }
+  if (e.target.name === 'bangla') { engine.scroll(); engine.placeTip(); return; }
   newTest({ practice: null });
   if (e.target.name === 'duration' && settings.duration === 'custom' && e.target.type === 'radio') $('#custom-seconds').focus();
 });

@@ -231,16 +231,18 @@ fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .w.vocab { font-weight: 600; }
 .w.vocab .vw, .w.vocab .c:not(.sp) { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 60%, transparent); text-decoration-thickness: 2px; text-underline-offset: 0.3em; }
 .w.vocab .c.err, .w.vocab .c.extra { text-decoration: underline wavy var(--error); }
-/* Bangla meaning above vocabulary words (config toggle "বাংলা"). Lines get taller to make room. */
-.textbox.show-bn { --lh: 2.55em; font-size: clamp(1.1875rem, 0.8rem + 1.25vw, 1.625rem); }
-.show-bn .w[data-bn] { position: relative; }
-.show-bn .w[data-bn]::before {
-  /* Sits in the empty space above the letters, inside its own line, so the
-     3-line window never clips it or shows the label of a hidden line. */
-  content: attr(data-bn); position: absolute; left: 0; bottom: calc(100% - 0.45em); /* em = label size */
-  font: 500 max(13px, 0.55em)/1.5 var(--font-bn); /* tall enough for Bangla glyph ink */ color: var(--accent); white-space: nowrap; pointer-events: none;
+/* Bangla tip (config toggle "বাংলা"): one small bubble above the word being learned.
+   It sits outside the clipped 3-line window, so it is never cut off. Lines get a little
+   taller and the box a little top padding, so the bubble fits between lines. */
+.textbox.show-bn { --lh: 2.15em; padding-top: 0.55em; font-size: clamp(1.1875rem, 0.8rem + 1.25vw, 1.625rem); }
+.bn-tip {
+  position: absolute; left: 0; top: 0; z-index: 1; margin: 0; padding: 0 8px;
+  border-radius: 6px; background: var(--accent-soft); color: var(--accent);
+  font: 600 max(13px, 0.56em)/1.5 var(--font-bn); white-space: nowrap; pointer-events: none;
+  transition: transform .14s ease, opacity .14s ease;
 }
-.show-bn .w.done[data-bn]::before { opacity: 0.55; }
+.bn-tip.is-done { opacity: 0.6; }
+.textbox:not(.is-focused) .bn-tip { opacity: 0; }
 .opt input[type="checkbox"]:not(:checked) + span { text-decoration: line-through; text-decoration-thickness: 1px; }
 .caret::before {
   content: ""; position: absolute; left: -1px; top: 0.18em; bottom: 0.18em; width: 2px; background: var(--accent); border-radius: 1px;
@@ -474,7 +476,7 @@ mark.hw { background: none; color: inherit; font-weight: 700; text-decoration: u
   .cfg-group::-webkit-scrollbar { display: none; }
   .opt > span { padding: 0 9px; min-height: 34px; font-size: 0.8125rem; }
   .textbox { font-size: 1.1875rem; --lh: 1.7em; }
-  .textbox.show-bn { font-size: 1.1875rem; --lh: 2.85em; }
+  .textbox.show-bn { font-size: 1.1875rem; --lh: 2.55em; }
   .mw-list { grid-template-columns: 1fr; }
 }
 /* Short laptop screens (720-760px tall): tighten vertical spacing so the test still fits. */

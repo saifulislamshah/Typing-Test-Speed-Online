@@ -177,49 +177,65 @@ def test_card_shows_bangla_meaning_for_the_sense(browser, server):
     assert 'class="bn"' not in html[1]
 
 
-def test_bangla_label_above_vocab_word_and_toggle(browser, server):
-    page, errors = new_page(browser, DESKTOP)
-
+def with_fake_bangla(page):
+    """Give every word a Bangla meaning, so the tests don't depend on which words are drawn."""
     def add_bn(route):
         data = route.fetch().json()
         for w in data["words"]:
-            w["bn"] = {s["pos"]: ["বাংলা অর্থ"] for s in w["senses"]}
+            w["bn"] = {s["pos"]: [f"অর্থ {w['word']}"] for s in w["senses"]}
         route.fulfill(json=data)
-
     page.route("**/api/vocab*", add_bn)
+
+
+TIP_GEOMETRY = """() => {
+    const tip = document.querySelector('#bn-tip'), box = document.querySelector('#textbox');
+    const win = document.querySelector('.text-window').getBoundingClientRect();
+    const t = tip.getBoundingClientRect(), b = box.getBoundingClientRect();
+    const words = [...document.querySelectorAll('#text-lines .w')];
+    // The word under the tip: the one whose left edge matches and whose top is just below it.
+    const w = words.map((el) => el.getBoundingClientRect())
+        .filter((r) => r.top >= t.bottom - 12 && r.top <= t.bottom + 8 && r.top < win.bottom)
+        .sort((p, q) => Math.abs(p.left - t.left) - Math.abs(q.left - t.left))[0];
+    return { hidden: tip.hidden, text: tip.textContent, tipTop: t.top, tipBottom: t.bottom, boxTop: b.top,
+             wordTop: w ? w.top : null, wordLeft: w ? w.left : null, tipLeft: t.left,
+             count: document.querySelectorAll('.bn-tip:not([hidden])').length };
+}"""
+
+
+@pytest.mark.parametrize("mode", ["learn", "speed"])
+def test_bangla_tip_above_current_word_and_toggle(browser, server, mode):
+    page, errors = new_page(browser, DESKTOP)
+    with_fake_bangla(page)
+    settings = json.dumps({"duration": "60", "custom": 90, "level": "medium", "mode": mode})
+    # First load only, so the reload below sees what the page saved.
+    page.add_init_script(f"if (!localStorage.getItem('tt-settings')) localStorage.setItem('tt-settings', {json.dumps(settings)})")
     page.goto(server + "/")
-    wait_for_fresh_card(page)
-    label = page.locator("#text-lines .w.vocab[data-bn]").first
-    assert label.get_attribute("data-bn") == "বাংলা অর্থ"
-    assert page.locator("#text-lines .w[data-bn]:not(.vocab)").count() == 0, "Learn mode labels vocab words only"
-    # Every label sits above its word and inside its own line, so the 3-line window
-    # never clips a label or shows one from a hidden line.
-    boxes = page.evaluate("""() => {
-        const lines = document.querySelector('#text-lines');
-        const lh = parseFloat(getComputedStyle(lines).lineHeight);
-        const first = lines.firstElementChild.getBoundingClientRect();
-        const lineTop0 = first.top + first.height / 2 - lh / 2;
-        return [...lines.querySelectorAll('.w[data-bn]')].map((el) => {
-            const r = el.getBoundingClientRect(), st = getComputedStyle(el, '::before');
-            const top = r.top + parseFloat(st.top);
-            const lineTop = lineTop0 + Math.round((r.top + r.height / 2 - lh / 2 - lineTop0) / lh) * lh;
-            return { top, bottom: top + parseFloat(st.height), wordTop: r.top, lineTop };
-        });
-    }""")
-    assert boxes
-    for b in boxes:
-        assert b["bottom"] <= b["wordTop"] + 0.25 * 26 + 1, b
-        assert b["top"] >= b["lineTop"] - 0.5, ("label spills out of its line", b)
+    page.wait_for_selector("#bn-tip:not([hidden])")
+    page.wait_for_timeout(250)
+    g = page.evaluate(TIP_GEOMETRY)
+    assert g["count"] == 1, "exactly one Bangla tip"
+    word = page.text_content("#wc-word")
+    assert g["text"] == f"অর্থ {word}", "the tip shows the current word's meaning"
+    assert g["tipTop"] >= g["boxTop"] - 1, "never cut off above the text"
+    assert g["wordTop"] is not None and g["tipBottom"] <= g["wordTop"] + 10, "sits just above the word"
+    assert abs(g["tipLeft"] - g["wordLeft"]) <= 2
+    if mode == "speed":
+        page.keyboard.type(page.evaluate("document.querySelector('#text-lines .w').textContent"), delay=30)
+        page.wait_for_timeout(250)
+        nxt = page.evaluate(TIP_GEOMETRY)
+        assert nxt["text"] != g["text"] and nxt["count"] == 1, "the tip moves to the next word"
     assert page.evaluate("document.documentElement.scrollHeight <= window.innerHeight")
 
     page.keyboard.type("ab", delay=30)
     page.click("label:has(#bangla-toggle)")
     assert not page.is_checked("#bangla-toggle")
-    assert "show-bn" not in page.get_attribute("#textbox", "class")
-    assert page.locator("#text-lines .c.ok, #text-lines .c.err, #text-lines .c.extra").count() == 2, "toggling does not restart the test"
+    assert page.is_hidden("#bn-tip")
+    assert page.locator("#text-lines .c.ok, #text-lines .c.err, #text-lines .c.extra").count() >= 2, "toggling does not restart the test"
     page.reload()
-    wait_for_fresh_card(page)
+    page.wait_for_selector("#wc-word")
+    page.wait_for_timeout(250)
     assert not page.is_checked("#bangla-toggle"), "the choice is remembered"
+    assert page.is_hidden("#bn-tip")
     assert not errors, errors
 
 

@@ -10,7 +10,8 @@ const TOKEN = /[A-Za-z]+(?:'[A-Za-z]+)?/g;
 
 export class Engine {
   constructor({ lines, input, box, overlay, hooks }) {
-    Object.assign(this, { lines, input, box, overlay, hooks });
+    Object.assign(this, { lines, input, box, overlay, hooks, tip: box.querySelector('.bn-tip') });
+    addEventListener('resize', () => this.placeTip());
     input.addEventListener('input', (e) => this.onInput(e));
     input.addEventListener('keydown', (e) => this.onKey(e));
     input.addEventListener('beforeinput', (e) => {
@@ -43,6 +44,7 @@ export class Engine {
     this.input.value = '';
     this.overlay.hidden = true;
     this.box.classList.remove('is-typing', 'is-paused');
+    if (this.tip) this.tip.hidden = true;
   }
 
   // items: [{ rec, sentence, forms }]
@@ -57,7 +59,7 @@ export class Engine {
         // Speed mode streams only vocab words, so highlighting would mark every word.
         const isVocab = (w.match(TOKEN) || []).some((t) => forms.has(t.toLowerCase()));
         this.vocab.push(this.mode === 'learn' && isVocab);
-        // Bangla label above the word: the vocab word in Learn mode, every word in Speed mode.
+        // Bangla tip: for the vocab word in Learn mode, for every word in Speed mode.
         this.bn.push((this.mode === 'speed' || isVocab) && it.bn ? it.bn : '');
       }
       it.end = this.words.length - 1;
@@ -65,6 +67,7 @@ export class Engine {
     }
     this.render();
     this.checkItem();
+    this.placeTip();
   }
 
   get remaining() { return this.words.length - this.wi; }
@@ -89,7 +92,6 @@ export class Engine {
     for (let i = this.rendered; i < end; i++) {
       const el = document.createElement('span');
       el.className = this.vocab[i] ? 'w vocab' : 'w';
-      if (this.bn[i]) el.dataset.bn = this.bn[i];
       if (i === this.wi) el.innerHTML = this.charsHtml(this.words[i], '', true);
       else if (this.vocab[i]) el.innerHTML = `<span class="vw">${esc(this.words[i])}</span> `;
       else el.textContent = `${this.words[i]} `;
@@ -107,6 +109,37 @@ export class Engine {
     el.classList.add('cur');
     el.innerHTML = this.charsHtml(this.words[this.wi], this.typed, true);
     this.scroll();
+    this.placeTip();
+  }
+
+  // One Bangla tip above one word: the current word (Speed mode) or the vocab word of
+  // the sentence being typed (Learn mode). It lives outside the clipped 3-line window.
+  tipIndex() {
+    if (!this.box.classList.contains('show-bn')) return -1;
+    if (this.mode === 'speed') return this.bn[this.wi] ? this.wi : -1;
+    const it = this.items[this.wordItem[this.wi]];
+    if (!it) return -1;
+    for (let k = this.wi; k <= it.end; k++) if (this.bn[k]) return k;
+    for (let k = this.wi - 1; k >= it.start; k--) if (this.bn[k]) return k; // already typed: keep it in view
+    return -1;
+  }
+
+  placeTip() {
+    const tip = this.tip;
+    if (!tip) return;
+    const i = this.tipIndex();
+    const el = i >= 0 && !this.shifting ? this.el(i) : null;
+    const win = this.lines.parentElement.getBoundingClientRect();
+    const r = el?.getBoundingClientRect();
+    if (!el || r.top >= win.bottom - 4 || r.bottom <= win.top) { tip.hidden = true; return; }
+    const box = this.box.getBoundingClientRect();
+    if (tip.textContent !== this.bn[i]) tip.textContent = this.bn[i];
+    tip.hidden = false;
+    tip.classList.toggle('is-done', i < this.wi);
+    const fs = parseFloat(getComputedStyle(this.lines).fontSize);
+    const x = Math.max(0, Math.min(r.left - box.left, box.width - tip.offsetWidth));
+    const y = r.top - box.top + fs * 0.12 - tip.offsetHeight; // just above the letters
+    tip.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
   }
 
   // Keep the caret on line 1 or 2: when it reaches line 3, slide the first line out.
@@ -137,6 +170,7 @@ export class Engine {
       this.lines.style.transition = '';
       this.shifting = false;
       this.scroll();
+      this.placeTip();
     }, 190);
   }
 
