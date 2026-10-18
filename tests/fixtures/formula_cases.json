@@ -1,0 +1,58 @@
+[
+  {
+    "name": "zero input",
+    "words": ["hello"],
+    "keystrokes": [],
+    "duration_ms": 60000,
+    "pauses": [],
+    "expected": {"net_wpm": 0, "raw_wpm": 0, "cpm": 0, "accuracy": 0, "correct_chars": 0, "typed_chars": 0, "errors": 0}
+  },
+  {
+    "name": "all errors",
+    "words": ["cat", "dog"],
+    "keystrokes": [[0, "c", "x", 0], [1000, "a", "y", 0], [2000, "t", " ", 0], [3000, "d", "a", 1], [4000, "o", "b", 1], [5000, "g", " ", 1]],
+    "duration_ms": 60000,
+    "pauses": [],
+    "expected": {"net_wpm": 0, "raw_wpm": 1.2, "cpm": 0, "accuracy": 0, "correct_chars": 0, "typed_chars": 6, "errors": 6}
+  },
+  {
+    "name": "perfect two words",
+    "words": ["the", "cat"],
+    "keystrokes": [[0, "t", "t", 0], [1500, "h", "h", 0], [3000, "e", "e", 0], [4500, " ", " ", 0], [6000, "c", "c", 1], [7500, "a", "a", 1], [9000, "t", "t", 1], [10500, " ", " ", 1]],
+    "duration_ms": 12000,
+    "pauses": [],
+    "expected": {"net_wpm": 8, "raw_wpm": 8, "cpm": 40, "accuracy": 100, "correct_chars": 8, "typed_chars": 8, "errors": 0}
+  },
+  {
+    "name": "paused time excluded",
+    "words": ["the", "cat"],
+    "keystrokes": [[0, "t", "t", 0], [1500, "h", "h", 0], [3000, "e", "e", 0], [64500, " ", " ", 0], [66000, "c", "c", 1], [67500, "a", "a", 1], [69000, "t", "t", 1], [70500, " ", " ", 1]],
+    "duration_ms": 72000,
+    "pauses": [[4000, 64000]],
+    "expected": {"net_wpm": 8, "raw_wpm": 8, "cpm": 40, "accuracy": 100, "correct_chars": 8, "typed_chars": 8, "errors": 0, "active_seconds": 12}
+  },
+  {
+    "name": "corrected error still costs accuracy",
+    "words": ["cat"],
+    "keystrokes": [[0, "c", "c", 0], [1000, "a", "x", 0], [2000, "a", "", 0], [3000, "a", "a", 0], [4000, "t", "t", 0], [5000, " ", " ", 0]],
+    "duration_ms": 6000,
+    "pauses": [],
+    "expected": {"net_wpm": 8, "raw_wpm": 10, "cpm": 40, "accuracy": 80, "correct_chars": 4, "typed_chars": 5, "errors": 1}
+  },
+  {
+    "name": "partial last word counts its correct prefix",
+    "words": ["hello", "world"],
+    "keystrokes": [[0, "h", "h", 0], [1000, "e", "e", 0], [2000, "l", "l", 0], [3000, "l", "l", 0], [4000, "o", "o", 0], [5000, " ", " ", 0], [6000, "w", "w", 1], [7000, "o", "o", 1], [8000, "r", "r", 1]],
+    "duration_ms": 30000,
+    "pauses": [],
+    "expected": {"net_wpm": 3.6, "raw_wpm": 3.6, "cpm": 18, "accuracy": 100, "correct_chars": 9, "typed_chars": 9, "errors": 0}
+  },
+  {
+    "name": "wrong committed word earns no correct chars",
+    "words": ["sun", "sky"],
+    "keystrokes": [[0, "s", "s", 0], [500, "u", "i", 0], [1000, "n", "n", 0], [1500, " ", " ", 0], [2000, "s", "s", 1], [2500, "k", "k", 1], [3000, "y", "y", 1], [3500, " ", " ", 1]],
+    "duration_ms": 6000,
+    "pauses": [],
+    "expected": {"net_wpm": 8, "raw_wpm": 16, "cpm": 40, "accuracy": 87.5, "correct_chars": 4, "typed_chars": 8, "errors": 1}
+  }
+]

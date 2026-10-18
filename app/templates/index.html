@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{HEAD}}
+<script type="application/ld+json">{{JSONLD}}</script>
+<script type="module" src="{{ASSETS}}/js/main.js"></script>
+</head>
+<body>
+{{HEADER}}
+<main id="main">
+  <section class="hero wrap" id="test" aria-labelledby="hero-title">
+    <p class="eyebrow">TYPING SPEED TEST</p>
+    <h1 id="hero-title">Type faster. Learn new English words.</h1>
+    <p class="subline">Every sentence teaches you a word - its meaning and how to use it.</p>
+
+    <form class="settings" id="settings" aria-label="Test settings">
+      <fieldset class="chips" id="duration-group">
+        <legend class="sr-only">Duration</legend>
+        <label class="chip"><input type="radio" name="duration" value="60" checked><span>1 min <small class="badge">Most popular</small></span></label>
+        <label class="chip"><input type="radio" name="duration" value="300"><span>5 min</span></label>
+        <label class="chip"><input type="radio" name="duration" value="600"><span>10 min</span></label>
+        <label class="chip"><input type="radio" name="duration" value="3600"><span>1 hour</span></label>
+        <label class="chip"><input type="radio" name="duration" value="custom"><span>Custom</span></label>
+        <span class="custom-field" id="custom-field" hidden>
+          <label for="custom-seconds" class="sr-only">Custom duration in seconds (15 to 7200)</label>
+          <input type="number" id="custom-seconds" min="15" max="7200" step="5" value="90" inputmode="numeric">
+          <span aria-hidden="true">sec</span>
+        </span>
+      </fieldset>
+      <div class="settings-row">
+        <fieldset class="segmented">
+          <legend class="seg-legend">Level</legend>
+          <label><input type="radio" name="level" value="easy"><span>Easy</span></label>
+          <label><input type="radio" name="level" value="medium" checked><span>Medium</span></label>
+          <label><input type="radio" name="level" value="hard"><span>Hard</span></label>
+        </fieldset>
+        <fieldset class="segmented">
+          <legend class="seg-legend">Mode</legend>
+          <label><input type="radio" name="mode" value="learn" checked><span>Learn words</span></label>
+          <label><input type="radio" name="mode" value="speed"><span>Speed only</span></label>
+        </fieldset>
+      </div>
+    </form>
+
+    <p class="practice-banner" id="practice-banner" hidden>
+      <span id="practice-text">Practicing your words</span>
+      <button type="button" class="link-btn" id="practice-exit">Back to random words</button>
+    </p>
+
+    <div class="test-grid">
+      <aside class="word-card" id="word-card" aria-label="Current word">
+        <div class="wc-body" id="wc-body">
+          <p class="wc-loading">Loading words...</p>
+        </div>
+        <p class="learned-toast" id="learned-toast" aria-hidden="true"></p>
+      </aside>
+
+      <div class="typing-area">
+        <div class="stats" role="group" aria-label="Live results">
+          <div class="stat ring-stat">
+            <svg class="ring" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
+              <circle class="ring-bg" cx="22" cy="22" r="19"/>
+              <circle class="ring-fg" id="ring-fg" cx="22" cy="22" r="19"/>
+            </svg>
+            <span class="ring-num"><span id="stat-time">60</span><small id="stat-time-unit">seconds left</small></span>
+          </div>
+          <div class="stat"><span class="stat-num" id="stat-wpm">0</span><span class="stat-label">WPM</span></div>
+          <div class="stat"><span class="stat-num" id="stat-cpm">0</span><span class="stat-label">CPM</span></div>
+          <div class="stat"><span class="stat-num" id="stat-acc">100</span><span class="stat-label">% accuracy</span></div>
+        </div>
+
+        <div class="textbox" id="textbox">
+          <label for="typing-input" class="sr-only">Type the text shown. The timer starts on your first key. Press Escape to restart.</label>
+          <input id="typing-input" class="typing-input" type="text" autocomplete="off" autocorrect="off"
+                 autocapitalize="off" spellcheck="false" enterkeyhint="next" aria-describedby="typing-hint">
+          <div class="text-window" aria-hidden="true"><div class="text-lines" id="text-lines"></div></div>
+          <div class="pause-overlay" id="pause-overlay" hidden><p>Paused - press any key to continue</p></div>
+        </div>
+        <div class="under-text">
+          <p class="hint" id="typing-hint">Start typing to begin. <kbd>Esc</kbd> restarts.</p>
+          <button type="button" class="btn btn-ghost btn-sm" id="restart-btn">Restart</button>
+        </div>
+        <p class="goal-cue" id="goal-cue" hidden></p>
+      </div>
+    </div>
+    <p class="library-note">Library of {{WORD_COUNT}} words and {{SENTENCE_COUNT}} example sentences.</p>
+    <div class="sr-only" aria-live="polite" id="live-region"></div>
+  </section>
+
+  <section class="section" id="how" aria-labelledby="how-title">
+    <div class="wrap">
+      <h2 id="how-title">How it works</h2>
+      <ol class="steps">
+        <li class="step"><span class="step-num" aria-hidden="true">1</span><h3>Learn the word</h3><p>See the word, hear how it sounds, and read a plain-English meaning.</p></li>
+        <li class="step"><span class="step-num" aria-hidden="true">2</span><h3>Type a real sentence</h3><p>Type an example sentence that uses the word, so you learn it in context.</p></li>
+        <li class="step"><span class="step-num" aria-hidden="true">3</span><h3>See how it's used</h3><p>Explore more example sentences, grouped by meaning, and save words to practice.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="benefits" aria-labelledby="benefits-title">
+    <div class="wrap">
+      <h2 id="benefits-title">Why practice here</h2>
+      <ul class="benefits">
+        <li class="benefit"><h3>Faster typing</h3><p>Live WPM, accuracy and problem keys show exactly what to work on next.</p></li>
+        <li class="benefit"><h3>Bigger English vocabulary</h3><p>Every test teaches new words, from everyday to advanced.</p></li>
+        <li class="benefit"><h3>Real example sentences</h3><p>Sentences show how each word is really used, not just what it means.</p></li>
+        <li class="benefit"><h3>Free, no sign-up</h3><p>Everything is free. Your words and results stay in your browser.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="progress" aria-labelledby="progress-title" hidden>
+    <div class="wrap">
+      <h2 id="progress-title">Your progress</h2>
+      <div class="progress-grid">
+        <div class="progress-tile"><span class="stat-num" id="pb-wpm">0</span><span class="stat-label">personal best WPM</span></div>
+        <div class="progress-tile"><span class="stat-num" id="saved-count">0</span><span class="stat-label">saved words</span></div>
+        <div class="progress-tile"><span class="stat-num" id="tests-count">0</span><span class="stat-label">tests taken</span></div>
+      </div>
+      <p class="zeigarnik" id="zeigarnik" hidden></p>
+      <h3 class="small-h">Last 10 tests</h3>
+      <div class="history-chart" id="history-chart"></div>
+      <div class="table-wrap">
+        <table class="history">
+          <thead><tr><th scope="col">Date</th><th scope="col">WPM</th><th scope="col">Accuracy</th><th scope="col">Words learned</th><th scope="col">Length</th></tr></thead>
+          <tbody id="history-body"></tbody>
+        </table>
+      </div>
+      <p class="note">Your words are saved in this browser - clearing site data will remove them.</p>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="faq" aria-labelledby="faq-title">
+    <div class="wrap narrow">
+      <h2 id="faq-title">Frequently asked questions</h2>
+      <div class="faq">
+{{FAQ_HTML}}
+      </div>
+    </div>
+  </section>
+
+  <section class="section cta" aria-labelledby="cta-title">
+    <div class="wrap narrow center">
+      <h2 id="cta-title">Ready to learn your next word?</h2>
+      <p>One minute is enough to find your speed and learn a few new words.</p>
+      <button type="button" class="btn btn-primary btn-lg" id="cta-start">Start my typing test</button>
+    </div>
+  </section>
+</main>
+{{FOOTER}}
+
+<dialog class="result-dialog" id="result-dialog" aria-labelledby="result-title">
+  <div class="result-inner">
+    <button type="button" class="icon-btn dialog-close" id="result-close" aria-label="Close results">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="rank">
+      <svg class="mascot" id="mascot" viewBox="0 0 120 120" role="img" aria-labelledby="mascot-title"><title id="mascot-title">Mascot</title><use id="mascot-use" href=""/></svg>
+      <div>
+        <h2 class="rank-title" id="result-title">You're a Rabbit.</h2>
+        <p class="rank-msg" id="result-msg"></p>
+        <p class="pb-line" id="pb-line"></p>
+      </div>
+    </div>
+
+    <section class="learned" aria-labelledby="learned-title" id="learned-section">
+      <h3 id="learned-title">You learned 0 new words</h3>
+      <ul class="learned-list" id="learned-list"></ul>
+      <button type="button" class="link-btn" id="show-all" hidden>Show all</button>
+      <div class="learned-actions">
+        <button type="button" class="btn btn-secondary" id="save-words">Save to My Words</button>
+        <button type="button" class="btn btn-secondary" id="practice-again">Practice these words again</button>
+        <p class="save-status" id="save-status" role="status"></p>
+      </div>
+    </section>
+
+    <section class="analysis" aria-labelledby="analysis-title">
+      <h3 id="analysis-title">Your typing in detail</h3>
+      <dl class="analysis-grid" id="analysis-grid"></dl>
+      <div class="chart" id="wpm-chart"></div>
+      <div class="analysis-lists">
+        <div><h4>Problem keys</h4><ul class="keys" id="problem-keys"></ul></div>
+        <div><h4>Mistyped words</h4><ul class="mistyped" id="mistyped"></ul></div>
+      </div>
+    </section>
+
+    <section class="share" aria-labelledby="share-title">
+      <h3 id="share-title">Share your score</h3>
+      <div class="share-row" id="share-row">
+        <button type="button" class="btn btn-secondary" id="share-native" hidden>Share</button>
+        <a class="btn btn-secondary" id="share-fb" target="_blank" rel="noopener">Facebook</a>
+        <a class="btn btn-secondary" id="share-li" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="btn btn-secondary" id="share-x" target="_blank" rel="noopener">X</a>
+        <button type="button" class="btn btn-secondary" id="share-copy">Copy link</button>
+      </div>
+    </section>
+
+    <div class="result-buttons">
+      <button type="button" class="btn btn-primary btn-lg" id="try-again" autofocus>Try again</button>
+      <button type="button" class="btn btn-ghost" id="change-settings">Change settings</button>
+    </div>
+  </div>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+</dialog>
+</body>
+</html>
