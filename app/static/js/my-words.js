@@ -1,0 +1,61 @@
+// My Words page: every saved word as a full card, with search, filters and practice.
+import { $, cap, esc, initTheme, sensesHtml, speakBtn, wireWordUi } from './util.js';
+import * as store from './storage.js';
+
+initTheme();
+const list = $('#mw-list');
+wireWordUi(list);
+
+function render() {
+  const all = Object.values(store.getWords()).sort((a, b) => b.savedAt - a.savedAt);
+  const ws = store.wordStats();
+  $('#mw-empty').hidden = all.length > 0;
+  $('#mw-toolbar').hidden = all.length === 0;
+  $('#mw-summary').textContent = all.length
+    ? `You saved ${ws.saved} word${ws.saved === 1 ? '' : 's'} - ${ws.needPractice ? `${ws.needPractice} still need practice.` : 'all practiced. Nice work!'}`
+    : 'Words you save after a test appear here, with every meaning and example.';
+  const learning = all.filter((w) => !w.known).length;
+  const practice = $('#mw-practice');
+  practice.hidden = learning === 0;
+  practice.textContent = `Practice my words (${learning})`;
+
+  const q = $('#mw-search').value.trim().toLowerCase();
+  const level = $('#mw-level').value;
+  const status = $('#mw-status').value;
+  const shown = all.filter(({ r, known }) =>
+    (!level || r.level === level) &&
+    (!status || (status === 'known') === !!known) &&
+    (!q || r.word.includes(q) || r.senses.some((s) => s.meaning.toLowerCase().includes(q))));
+  $('#mw-count').textContent = all.length ? `Showing ${shown.length} of ${all.length} words` : '';
+  list.innerHTML = shown.map(cardHtml).join('');
+}
+
+function cardHtml({ r, known }) {
+  return `<li class="mw-card${known ? ' is-known' : ''}">
+<div class="wc-head"><h2 class="wc-word">${esc(r.word)}</h2><span class="pos-tag">${esc(r.level)}</span>${known ? '<span class="known-tag">Known</span>' : ''}</div>
+<div class="wc-pron">${r.ipa ? `<span class="ipa">${esc(r.ipa)}</span>` : ''}${speakBtn(r.word)}</div>
+<p class="wc-meaning"><strong>${esc(cap(r.word))}</strong> means ${esc(r.senses[0].meaning)}.</p>
+<h3 class="ex-h">Meanings and examples</h3>${sensesHtml(r, r.senses)}
+<div class="mw-actions">
+<button type="button" class="btn btn-secondary btn-sm" data-known="${esc(r.id)}" aria-pressed="${known ? 'true' : 'false'}">${known ? 'Known ✓ (practice again)' : 'Mark as known'}</button>
+<button type="button" class="btn btn-ghost btn-sm" data-remove="${esc(r.id)}" aria-label="Remove ${esc(r.word)} from My Words">Remove</button>
+</div></li>`;
+}
+
+list.addEventListener('click', (e) => {
+  const k = e.target.closest('[data-known]');
+  const rm = e.target.closest('[data-remove]');
+  if (k) {
+    const id = k.dataset.known;
+    store.updateWord(id, { known: k.getAttribute('aria-pressed') !== 'true' });
+    render();
+    list.querySelector(`[data-known="${CSS.escape(id)}"]`)?.focus();
+  }
+  if (rm) {
+    store.updateWord(rm.dataset.remove, null);
+    render();
+    $('#mw-search').focus();
+  }
+});
+for (const id of ['#mw-search', '#mw-level', '#mw-status']) $(id).addEventListener('input', render);
+render();
