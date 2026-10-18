@@ -15,6 +15,9 @@ RUN = {"t": "চালান", "bd": [
 def test_clean_term_fixes_legacy_spellings_and_rejects_non_bangla():
     assert clean_term(" হত্তয়া ") == "হওয়া"
     assert clean_term("পরিষত্সম্বন্ধীয়") == "পরিষৎসম্বন্ধীয়"
+    assert clean_term("তত্পর") == "তৎপর"
+    assert clean_term("দু:খ") == "দুঃখ"
+    assert clean_term("পত্র") == "পত্র" and clean_term("উত্তর") == "উত্তর"  # real conjuncts kept
     assert clean_term("tailgate") is None
     assert clean_term("Hinged বোর্ড") is None
     assert clean_term("পরিমাণ, তীব্রতা, পদমর্যাদা ইত্যাদিতে নিম্নস্থ") is None  # an explanation, too long

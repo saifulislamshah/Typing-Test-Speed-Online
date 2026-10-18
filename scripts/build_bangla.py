@@ -36,9 +36,13 @@ MAX_PER_POS = 3
 MAX_CHARS = 28  # longer "meanings" are explanations, not translations
 BENGALI = re.compile(r"[ঀ-৿]")
 LATIN = re.compile(r"[A-Za-z]")
-# Legacy spellings in Google's Bangla dictionary data: ওয় written as ত্তয় (হত্তয়া -> হওয়া),
-# and khanda ta written as ত্ before স (পরিষত্সম্বন্ধীয় -> পরিষৎসম্বন্ধীয়).
-FIXES = (("ত্তয়", "ওয়"), ("ত্স", "ৎস"))
+# Legacy spellings in Google's Bangla dictionary data: ওয় written as ত্তয় (হত্তয়া -> হওয়া).
+FIXES = (("ত্তয়", "ওয়"),)
+# Khanda ta written as ত্ + consonant where no ত-conjunct exists (তত্পর -> তৎপর, পরিষত্স -> পরিষৎস).
+# Real conjuncts ত্ত ত্থ ত্ন ত্ম ত্য ত্র ত্ব are left alone.
+KHANDA_TA = re.compile("ত্(?=[ক-হ])(?![তথনমযরব])")
+# A colon used for visarga (দু:খ -> দুঃখ).
+VISARGA = re.compile(r"(?<=[ঀ-৿]):(?=[ঀ-৿])")
 
 
 # ---------------------------------------------------------------- pure helpers
@@ -47,6 +51,7 @@ def clean_term(term: str) -> str | None:
     t = " ".join(term.split())
     for bad, good in FIXES:
         t = t.replace(bad, good)
+    t = VISARGA.sub("ঃ", KHANDA_TA.sub("ৎ", t))
     t = t.strip(" ,;.।")
     if not t or not BENGALI.search(t) or LATIN.search(t) or len(t) > MAX_CHARS:
         return None

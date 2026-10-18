@@ -192,20 +192,31 @@ def test_bangla_label_above_vocab_word_and_toggle(browser, server):
     label = page.locator("#text-lines .w.vocab[data-bn]").first
     assert label.get_attribute("data-bn") == "বাংলা অর্থ"
     assert page.locator("#text-lines .w[data-bn]:not(.vocab)").count() == 0, "Learn mode labels vocab words only"
-    word_top = label.bounding_box()["y"]
-    label_bottom = page.evaluate("""() => {
-        const el = document.querySelector('#text-lines .w.vocab[data-bn]');
-        const st = getComputedStyle(el, '::before');
-        return el.getBoundingClientRect().top + parseFloat(st.top) + parseFloat(st.height);
+    # Every label sits above its word and inside its own line, so the 3-line window
+    # never clips a label or shows one from a hidden line.
+    boxes = page.evaluate("""() => {
+        const lines = document.querySelector('#text-lines');
+        const lh = parseFloat(getComputedStyle(lines).lineHeight);
+        const first = lines.firstElementChild.getBoundingClientRect();
+        const lineTop0 = first.top + first.height / 2 - lh / 2;
+        return [...lines.querySelectorAll('.w[data-bn]')].map((el) => {
+            const r = el.getBoundingClientRect(), st = getComputedStyle(el, '::before');
+            const top = r.top + parseFloat(st.top);
+            const lineTop = lineTop0 + Math.round((r.top + r.height / 2 - lh / 2 - lineTop0) / lh) * lh;
+            return { top, bottom: top + parseFloat(st.height), wordTop: r.top, lineTop };
+        });
     }""")
-    assert label_bottom <= word_top + 2, "label sits above the word"
+    assert boxes
+    for b in boxes:
+        assert b["bottom"] <= b["wordTop"] + 0.25 * 26 + 1, b
+        assert b["top"] >= b["lineTop"] - 0.5, ("label spills out of its line", b)
     assert page.evaluate("document.documentElement.scrollHeight <= window.innerHeight")
 
     page.keyboard.type("ab", delay=30)
     page.click("label:has(#bangla-toggle)")
     assert not page.is_checked("#bangla-toggle")
     assert "show-bn" not in page.get_attribute("#textbox", "class")
-    assert page.locator("#text-lines .c.ok, #text-lines .c.err").count() == 2, "toggling does not restart the test"
+    assert page.locator("#text-lines .c.ok, #text-lines .c.err, #text-lines .c.extra").count() == 2, "toggling does not restart the test"
     page.reload()
     wait_for_fresh_card(page)
     assert not page.is_checked("#bangla-toggle"), "the choice is remembered"
